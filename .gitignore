@@ -1,0 +1,13 @@
+# Excluded folder
+/[Ii]gnore/
+
+# macOS related
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows related
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
