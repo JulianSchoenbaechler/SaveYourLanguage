@@ -6,6 +6,7 @@ Copyright Notice
 ----------------
 This project is maintained by the [University of the Arts in Zurich, Department Design - Game Design](https://www.zhdk.ch).
 The content and works of this project are **governed by the copyright laws of Switzerland**. Therefore this repository is not licensed and does not contain sensitive data of any kind.
+
 <img src="https://rawgithub.com/JulianSchoenbaechler/SaveYourLanguage/master/platform/img/zhdk-logo.svg" alt="University of the Arts Zurich, Switzerland" height="128" /><img src="https://rawgithub.com/JulianSchoenbaechler/SaveYourLanguage/master/platform/img/uzh-logo.svg" alt="University of Zurich, Switzerland" height="128" />
 
 Project Code Base
