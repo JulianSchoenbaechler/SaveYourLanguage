@@ -11,8 +11,9 @@
  */
 namespace SaveYourLanguage\Database;
 
-use SaveYourLanguage\Config;
+require_once dirname(__FILE__).'/../Config.php';
 
+use SaveYourLanguage\Config;
 
 trait DatabaseConnection
 {
