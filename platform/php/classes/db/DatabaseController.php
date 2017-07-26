@@ -12,8 +12,7 @@
 namespace SaveYourLanguage\Database;
 
 // Include connection
-require_once '../Config.php';
-require_once 'DatabaseConnection.php';
+require_once dirname(__FILE__).'/DatabaseConnection.php';
 
 
 class DatabaseController
