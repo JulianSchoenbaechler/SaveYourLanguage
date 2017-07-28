@@ -11,7 +11,7 @@
  */
 namespace SaveYourLanguage\Login;
 
-// Include connection
+// Include configuration
 require_once dirname(__FILE__).'/../Config.php';
 
 use SaveYourLanguage\Config;
