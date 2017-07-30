@@ -25,5 +25,5 @@ class Config
     const SECURE_CONNECTION         = false;        // For development only!!!
     
     // Main crypto-key
-    const CRYPTO_KEY                = 'TVKVg0nPG+2qHl38Wk4cttZTUyGdBg6pUAJqkXmYTN8=';
+    const CRYPTO_KEY                = 'TVKVg0nPG+2qHl38Wk4cttZTUyGdBg6pUAJqkXmYTN8=';   // For development only!!!
 }
