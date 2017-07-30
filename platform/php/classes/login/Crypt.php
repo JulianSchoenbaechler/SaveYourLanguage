@@ -40,9 +40,9 @@ class Crypt
         return openssl_decrypt($cryptStrings[0], 'AES-256-CBC', $encryptionKey, 0, $cryptStrings[1]);
     }
     
-    // Generate AES 256 key
+    // Generate 256bit crypto-key
     // Key will be base64 encoded
-    public static function generateAES256Key()
+    public static function generateCryptoKey()
     {
         return base64_encode(openssl_random_pseudo_bytes(32));
     }
