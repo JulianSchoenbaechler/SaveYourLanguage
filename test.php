@@ -21,15 +21,26 @@
     
     use SaveYourLanguage\Database\DatabaseController;
     
-    
+	
     $link = DatabaseController::connect();
     $dc = new DatabaseController($link);
     
-    echo $dc->deleteRow('testtabelle', array(
-        'geschlecht' => maennlich,
-		'name' => alfonse
+    $soundfile = $dc->getRow('soundfiles', array(
+        'status' => unsolved
     ));
-    
+	if($soundfile==NULL){
+		  $soundfile = $dc->getRow('soundfiles', array(
+        'status' => fresh
+		));		
+	}
+    if($soundfile==NULL){
+		//no unsolved nor fresh files in database, return null?
+		return null;
+	}else{		
+		//echo $soundfile['path'];  shows the path of the soundfile
+		//echo 'returned';
+		return $soundfile;
+	}
     // Close database
     DatabaseController::disconnect($link);
     unset($link);
