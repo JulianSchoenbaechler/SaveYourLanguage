@@ -14,6 +14,7 @@ namespace SaveYourLanguage\Login;
 // Include connection
 require_once dirname(__FILE__).'/../db/DatabaseController.php';
 require_once dirname(__FILE__).'/Crypt.php';
+require_once dirname(__FILE__).'/Session.php';
 require_once dirname(__FILE__).'/../Config.php';
 
 use SaveYourLanguage\Database\DatabaseController;
@@ -37,7 +38,10 @@ class Login
         }
     }
     
-    // Creates a new user / player in database
+    /*
+     * Creates a new user / player in database
+     * Returns true if registration succeeded, otherwise false
+     */
     public static function registerUser($username, $password, $email, $publicEmail, $name = null, $address = null, $phone = null)
     {
         // Check arguments
@@ -75,6 +79,7 @@ class Login
             'email' => $email,
             'login_attempts' => 0,
             'last_attempt' => time(),
+            'recover' => 'none',
             'crypt' => Crypt::encryptBlowfish(getenv('USER_CRYPTO_KEY', true), Config::CRYPTO_KEY),
             'public_email' => $publicEmail ? 1 : 0,
             'name' => $name == null ? 'none' : Crypt::encryptAES256($name, getenv('USER_CRYPTO_KEY', true)),
@@ -86,8 +91,16 @@ class Login
         return true;
     }
     
-    
-    public static function loginUser($login, $password, $loginWithEmail = false)
+    /*
+     * User login - Verify login data and start session
+     * Returns true if user logged in successfully, otherwise an error keyword as string
+     *
+     * Possible returned error:
+     * nouser       = No user for submitted data found
+     * password     = The submitted password is not correct
+     * blocked      = This account is blocked
+     */
+    public static function loginUser($login, $password)
     {
         // Check arguments
         if (!is_string($login)) {
@@ -100,48 +113,149 @@ class Login
         // Initialize
         self::init();
         
+        $row = null;
         
+        // If login contains the character '@' -> login with email
+        if (strpos($login, '@') === false) {
+            
+            $row = self::$dc->getRow('users', array('username' => $login));
+            
+        } else {
+            
+            $row = self::$dc->getRow('users', array('email' => $login));
+            
+        }
+        
+        // User found?
+        if ($row !== null) {
+            
+            // Check password
+            if (password_verify($password, $row['password'])) {
+                
+                // Check if user blocked
+                // 3 attempts or more, not longer as 30 minutes ago
+                if (((int)$row['login_attempts'] >= 3) && ((int)$row['last_attempt'] > (time() - 1800))) {
+                    
+                    // Start new session
+                    $session = new Session('SaveYourLanguage');
+                    $session->startSecureSession();
+                    $_SESSION['syl']['user'] = $row['id'];
+                    $_SESSION['syl']['client'] = password_hash($_SERVER['REMOTE_ADDR'].$row['crypt'], PASSWORD_BCRYPT);
+                    $_SESSION['syl']['expire'] = time() + 1800;
+                    $session->closeSession();
+                    
+                    // Update user data in db
+                    self::$dc->updateRow('users', array(
+                        'login_attempts' => 0,
+                        'last_attempt' => time(),
+                        'recover' => 'none'
+                    ), array('id' => $row['id']));
+                    
+                    // Login succesful
+                    return true;
+                    
+                } else {
+                    
+                    // User blocked
+                    return 'blocked';
+                    
+                }
+                
+            } else {
+                
+                // Update user data in db
+                self::$dc->updateRow('users', array(
+                    'login_attempts' => (int)$row['login_attempts'] + 1,
+                    'last_attempt' => time()
+                ), array('id' => $row['id']));
+                
+                // Password incorrect
+                return 'password';
+                
+            }
+            
+        } else {
+            
+            // User does not exist
+            return 'nouser';
+            
+        }
     }
     
     /*
-    // Properties
-    protected $name;
-    
-    // Constructor
-    protected function __construct($sessionName)
+     * Logout current user and destroy its session
+     */
+    public static function logoutUser()
     {
-        $this->name = $sessionName ? $sessionName : '';
+        // Initialize
+        self::init();
+        
+        // Start session
+        $session = new Session('SaveYourLanguage');
+        $session->startSecureSession();
+        $_SESSION['syl']['user'] = -1;
+        $_SESSION['syl']['client'] = 'none';
+        $_SESSION['syl']['expire'] = time() - 3600;
+        $session->closeSession();
+        $session->destroySession();
     }
     
-    // Start a secure session used for logged in user identification.
-    public function startSecureSession()
+    /*
+     * Is this user logged in?
+     * Returns the user id if logged in, otherwise false
+     */
+    public static function isUserLoggedIn()
     {
-        if (ini_set('session.use_only_cookies', 1) === false) {
-            trigger_error("[Session] 'startSecureSession' is not able to use session cookies.", E_USER_ERROR);
-            exit();
+        // Initialize
+        self::init();
+        
+        // Start session
+        $session = new Session('SaveYourLanguage');
+        $session->startSecureSession();
+        
+        // Is session set
+        if (isset($_SESSION['syl']['user'])) {
+            
+            // Is session not expired yet?
+            if ($_SESSION['syl']['expire'] >= time()) {
+                
+                $row = $row = self::$dc->getRow('users', array('id' => $_SESSION['syl']['user']));
+                
+                // User exists?
+                if ($row != null) {
+                    
+                    // Session owner still correct?
+                    if (password_verify($_SERVER['REMOTE_ADDR'].$row['crypt'], $_SESSION['syl']['client'])) {
+                        
+                        $session->closeSession();
+                        return $_SESSION['syl']['user'];
+                        
+                    } else {
+                        
+                        $session->closeSession();
+                        return false;               // Not same user client ip
+                        
+                    }
+                    
+                } else {
+                    
+                    $session->closeSession();
+                    return false;               // The user stored in the session can not be found in db
+                    
+                }
+                
+            } else {
+                
+                $session->closeSession();
+                return false;               // The user session is expired
+                
+            }
+            
         }
         
-        $cookieParams = session_get_cookie_params();
-        session_set_cookie_params(
-            1800,
-            $cookieParams['path'],
-            $cookieParams['domain'],
-            Config::SECURE_CONNECTION,
-            true
-        );
-        session_name($this->name);
-        session_start();
-        session_regenerate_id(true);
+        $session->closeSession();
+        return false;               // No corresponding session found
+        
     }
     
-    public function closeSession()
-    {
-        session_write_close();
-    }
-    
-    public function destroySession()
-    {
-        session_destroy();
-    }
-    */
 }
