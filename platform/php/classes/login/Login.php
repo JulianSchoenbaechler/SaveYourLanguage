@@ -136,6 +136,11 @@ class Login
                 // 3 attempts or more, not longer as 30 minutes ago
                 if (((int)$row['login_attempts'] >= 3) && ((int)$row['last_attempt'] > (time() - 1800))) {
                     
+                    // User blocked
+                    return 'blocked';
+                    
+                } else {
+                    
                     // Start new session
                     $session = new Session('SaveYourLanguage');
                     $session->startSecureSession();
@@ -153,11 +158,6 @@ class Login
                     
                     // Login succesful
                     return true;
-                    
-                } else {
-                    
-                    // User blocked
-                    return 'blocked';
                     
                 }
                 
