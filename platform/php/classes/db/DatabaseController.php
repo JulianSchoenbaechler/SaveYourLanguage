@@ -41,24 +41,30 @@ class DatabaseController
         $sql1 = "INSERT INTO `$table`(";
         $sql2 = ") VALUES (";
         
+        $types = '';
+        $param = array();
+        
         // For every value
         foreach ($values as $column => $value) {
-            
-            // Define columns to insert
-            $element = $this->link->real_escape_string($column);
-            $sql1 .= "`$element`, ";
             
             // Is the value a string or an integer?
             if (is_string($value)) {
                 
-                $element = $this->link->real_escape_string($value);
-                $sql2 .= "'$element', ";
+                $types .= 's';
                 
             } else {
                 
-                $sql2 .= (string)$value.", ";
+                $types .= 'i';
                 
             }
+            
+            // Add parameters for later binding to prepared statement
+            $param[] = &$values[$column];
+            
+            $element = $this->link->real_escape_string($column);
+            $sql1 .= "`$element`, ";
+            $sql2 .= '?, ';
+            
         }
         
         // Create query
@@ -66,9 +72,25 @@ class DatabaseController
         $sql2 = substr($sql2, 0, strlen($sql2) - 2);
         $sql = $sql1.$sql2.")";
         
-        // Insert row
-        if (!$this->link->query($sql)) {
+        // Add types parameter
+        array_unshift($param, $types);
+        
+        // Prepare statement
+        if ($stmt = $this->link->prepare($sql)) {
+            
+            // Bind parameters through array
+            call_user_func_array(array($stmt, 'bind_param'), $param);
+            
+            // Execute and close query
+            if ($stmt->execute()  === false)
+                printf("MYSQL Statement: Error %s\n", $stmt->error);
+            
+            $stmt->close();
+            
+        } else {
+            
             printf("MYSQL: Error %s\n", $this->link->error);
+            
         }
     }
     
@@ -84,24 +106,30 @@ class DatabaseController
         
         $sql = "UPDATE `$table` SET ";
         
+        $types = '';
+        $param = array();
+        
         // For every value
         foreach ($values as $column => $value) {
-            
-            // Define columns to insert
-            $element = $this->link->real_escape_string($column);
-            $sql .= "`$element`=";
             
             // Is the value a string or an integer?
             if (is_string($value)) {
                 
-                $element = $this->link->real_escape_string($value);
-                $sql .= "'$element', ";
+                $types .= 's';
                 
             } else {
                 
-                $sql .= (string)$value.", ";
+                $types .= 'i';
                 
             }
+            
+            // Define columns to insert
+            $element = $this->link->real_escape_string($column);
+            $sql .= "`$element`=?, ";
+            
+            // Add parameters for later binding to prepared statement
+            $param[] = &$values[$column];
+            
         }
         
         // First fragment of query
@@ -115,21 +143,24 @@ class DatabaseController
             // For every condition
             foreach ($conditions as $column => $value) {
                 
-                // Define columns to insert
-                $element = $this->link->real_escape_string($column);
-                $sql .= "`$element`=";
-                
                 // Is the value a string or an integer?
                 if (is_string($value)) {
                     
-                    $element = $this->link->real_escape_string($value);
-                    $sql .= "'$element' AND ";
+                    $types .= 's';
                     
                 } else {
                     
-                    $sql .= (string)$value." AND ";
+                    $types .= 'i';
                     
                 }
+                
+                // Define columns to insert
+                $element = $this->link->real_escape_string($column);
+                $sql .= "`$element`=? AND ";
+                
+                // Add parameters for later binding to prepared statement
+                $param[] = &$conditions[$column];
+                
             }
             
             // Second fragment of query
@@ -141,9 +172,25 @@ class DatabaseController
             
         }
         
-        // Update row
-        if (!$this->link->query($sql)) {
+        // Add types parameter
+        array_unshift($param, $types);
+        
+        // Prepare statement
+        if ($stmt = $this->link->prepare($sql)) {
+            
+            // Bind parameters through array
+            call_user_func_array(array($stmt, 'bind_param'), $param);
+            
+            // Execute and close query
+            if ($stmt->execute()  === false)
+                printf("MYSQL Statement: Error %s\n", $stmt->error);
+            
+            $stmt->close();
+            
+        } else {
+            
             printf("MYSQL: Error %s\n", $this->link->error);
+            
         }
     }
     
@@ -159,53 +206,194 @@ class DatabaseController
         
         $sql = "SELECT * FROM `$table` WHERE ";
         
+        $types = '';
+        $param = array();
+        $row = array();
+        
         // For every condition
         foreach ($conditions as $column => $value) {
-            
-            // Define columns to insert
-            $element = $this->link->real_escape_string($column);
-            $sql .= "`$element`=";
             
             // Is the value a string or an integer?
             if (is_string($value)) {
                 
-                $element = $this->link->real_escape_string($value);
-                $sql .= "'$element' AND ";
+                $types .= 's';
                 
             } else {
                 
-                $sql .= (string)$value." AND ";
+                $types .= 'i';
                 
             }
+            
+            // Define columns to insert
+            $element = $this->link->real_escape_string($column);
+            $sql .= "`$element`=? AND ";
+            
+            // Add parameters for later binding to prepared statement
+            $param[] = &$conditions[$column];
+            
         }
         
         // Strip 'AND' from query
         $sql = substr($sql, 0, strlen($sql) - 5);
         $sql .= " LIMIT 1";
         
-        $result = $this->link->query($sql);
+        // Add types parameter
+        array_unshift($param, $types);
         
-        // Check result
-        if (!$result) {
-            printf("MYSQL: Error %s\n", $this->link->error);
-        }
+        // Prepare statement
+        if ($stmt = $this->link->prepare($sql)) {
+            
+            // Bind parameters through array
+            call_user_func_array(array($stmt, 'bind_param'), $param);
+            
+            // Execute
+            if ($stmt->execute()  === false)
+                printf("MYSQL Statement: Error %s\n", $stmt->error);
+            
+            unset($param);
+            
+            // Result
+            $stmt->store_result();
+            
+            // Are there any selected rows?
+            if ($stmt->num_rows > 0) {
+            
+                $param = array();
+                $meta = $stmt->result_metadata();
+                
+                // Define parameters for result binding (where to store result values from row)
+                // For every field...
+                while ($field = $meta->fetch_field())
+                    $param[] = &$row[$field->name];
+                
+                // Bind parameteres through array
+                call_user_func_array(array($stmt, 'bind_result'), $param);
+                
+                // Fetch result for one row
+                $stmt->fetch();
+                
+                // Close statement
+                $stmt->close();
+                
+                // Return database content
+                return $row;
         
-        // If row was found
-        if ($result->num_rows > 0) {
+            } else {
+                
+                return null;
+                
+            }
             
-            $row = $result->fetch_array(MYSQLI_ASSOC);
-            
-            $result->free_result;
-            
-            // Return database content
-            return $row;
-        
         } else {
             
-            // Not found a matching row
-            return null;
+            printf("MYSQL: Error %s\n", $this->link->error);
             
         }
+        
+        // Error
+        return null;
+    }
+    
+    // Get multiple rows from database table returned as array (every element one row)
+    public function getRows($table, $conditions = array(), $max = 65535)
+    {
+        // Check table name
+        if (!is_string($table)) {
+            trigger_error("[DatabaseController] 'getRow' expected argument 0 to be string.", E_USER_WARNING);
+        } else {
+            $table = $this->link->real_escape_string($table);
+        }
+        
+        $sql = "SELECT * FROM `$table` WHERE ";
+        
+        $types = '';
+        $param = array();
+        $rows = array();
+        
+        // For every condition
+        foreach ($conditions as $column => $value) {
+            
+            // Is the value a string or an integer?
+            if (is_string($value)) {
+                
+                $types .= 's';
+                
+            } else {
+                
+                $types .= 'i';
+                
+            }
+            
+            // Define columns to insert
+            $element = $this->link->real_escape_string($column);
+            $sql .= "`$element`=? AND ";
+            
+            // Add parameters for later binding to prepared statement
+            $param[] = &$conditions[$column];
+            
+        }
+        
+        // Strip 'AND' from query
+        $sql = substr($sql, 0, strlen($sql) - 5);
+        $sql .= " LIMIT ".(string)$max;
+        
+        // Add types parameter
+        array_unshift($param, $types);
+        
+        // Prepare statement
+        if ($stmt = $this->link->prepare($sql)) {
+            
+            // Bind parameters through array
+            call_user_func_array(array($stmt, 'bind_param'), $param);
+            
+            // Execute
+            if ($stmt->execute()  === false)
+                printf("MYSQL Statement: Error %s\n", $stmt->error);
+            
+            unset($param);
+            
+            // Result
+            $stmt->store_result();
+            
+            // Are there any selected rows?
+            if ($stmt->num_rows > 0) {
+            
+                $param = array();
+                $row = array();
+                $meta = $stmt->result_metadata();
+                
+                // Define parameters for result binding (where to store result values from row)
+                // For every field...
+                while ($field = $meta->fetch_field())
+                    $param[] = &$row[$field->name];
+                
+                // Bind parameteres through array
+                call_user_func_array(array($stmt, 'bind_result'), $param);
+                
+                // Fetch result for all rows
+                while ($stmt->fetch())
+                    array_push($rows, $row);
+                
+                // Close statement
+                $stmt->close();
+                
+                // Return database content
+                return $rows;
+        
+            } else {
+                
+                return null;
+                
+            }
+            
+        } else {
+            
+            printf("MYSQL: Error %s\n", $this->link->error);
+            
+        }
+        
+        // Error
+        return null;
     }
     
     // Delete a specific row
@@ -220,36 +408,54 @@ class DatabaseController
         
         $sql = "DELETE FROM `$table` WHERE ";
         
+        $types = '';
+        $param = array();
+        
         // For every condition
         foreach ($conditions as $column => $value) {
-            
-            // Define columns to insert
-            $element = $this->link->real_escape_string($column);
-            $sql .= "`$element`=";
             
             // Is the value a string or an integer?
             if (is_string($value)) {
                 
-                $element = $this->link->real_escape_string($value);
-                $sql .= "'$element' AND ";
+                $types .= 's';
                 
             } else {
                 
-                $sql .= (string)$value." AND ";
+                $types .= 'i';
                 
             }
+            
+            // Define columns to insert
+            $element = $this->link->real_escape_string($column);
+            $sql .= "`$element`=? AND ";
+            
+            // Add parameters for later binding to prepared statement
+            $param[] = &$conditions[$column];
             
         }
         
         // Strip 'AND' from query
         $sql = substr($sql, 0, strlen($sql) - 5);
         
-        // Check result
-        if (!$this->link->query($sql)) {
-            printf("MYSQL: Error %s\n", $this->link->error);
-            return false;
-        }
+        // Add types parameter
+        array_unshift($param, $types);
         
-        return true;
+        // Prepare statement
+        if ($stmt = $this->link->prepare($sql)) {
+            
+            // Bind parameters through array
+            call_user_func_array(array($stmt, 'bind_param'), $param);
+            
+            // Execute and close query
+            if ($stmt->execute()  === false)
+                printf("MYSQL Statement: Error %s\n", $stmt->error);
+            
+            $stmt->close();
+            
+        } else {
+            
+            printf("MYSQL: Error %s\n", $this->link->error);
+            
+        }
     }
 }
