@@ -18,32 +18,18 @@
     
     // Include library files
     require_once 'platform/php/classes/db/DatabaseController.php';
-    
+	require_once 'platform/php/classes/syl/DemoClassForMarcello.php';
     use SaveYourLanguage\Database\DatabaseController;
-    
+	use SaveYourLanguage\Statistics\DemoClassForMarcello;
 	
     $link = DatabaseController::connect();
     $dc = new DatabaseController($link);
-    
-    $soundfile = $dc->getRow('soundfiles', array(
-        'status' => unsolved
-    ));
-	if($soundfile==NULL){
-		  $soundfile = $dc->getRow('soundfiles', array(
-        'status' => fresh
-		));		
-	}
-    if($soundfile==NULL){
-		//no unsolved nor fresh files in database, return null?
-		return null;
-	}else{		
-		//echo $soundfile['path'];  shows the path of the soundfile
-		//echo 'returned';
-		return $soundfile;
-	}
+	$celoclass = new DemoClassForMarcello();
+	$teststring = "this is some test string";
+	$sum = $celoclass->CalculateSum($teststring);
+	echo $sum;
     // Close database
     DatabaseController::disconnect($link);
     unset($link);
     
-    echo 'test';
     exit();

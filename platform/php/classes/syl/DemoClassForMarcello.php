@@ -25,7 +25,7 @@ class DemoClassForMarcello
     private $aVariable;
     
     // Constructor
-    public function __construct($anArgument)
+    public function __construct()
     {
         // Dos something
     }
@@ -95,7 +95,11 @@ class DemoClassForMarcello
 		$dataString = strtolower ($dataString); //makes everything lowercase, usefull because a and A have very different asci values.
 		$sum = 0;
 		for ($i = 0; $i < strlen($dataString); $i++){
-			$sum = $sum + ord ($dataString[$i])-96; //adding the asci-value of each char. asci-value of a = 97, thats why substraction by 96 needs to hapen, otherwise failures aren't remarkable.
+			$value = ord ($dataString[$i])-96;
+			if($value < 0){
+				$value = 0;
+			}
+			$sum = $sum + $value; //adding the asci-value of each char. asci-value of a = 97, thats why substraction by 96 needs to hapen, otherwise failures aren't remarkable.
 		}
 		return $sum;
 	}
