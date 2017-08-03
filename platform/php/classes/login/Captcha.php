@@ -98,7 +98,7 @@ class Captcha
     // Returns an image resource identifier on success, false on errors
     public function createCaptchaImage($code, $x = 300, $y = 100)
     {
-        $code = trim($code);
+        $code = strtoupper(trim($code));
         
         // Code too short
         if (strlen($code) < 3)
