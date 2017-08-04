@@ -63,11 +63,16 @@ class DemoClassForMarcello
 	//this method compares sums of all transkriptions of a soundFile and updates the accuracy for that transcription
 	public function AnalyseData($tableName, $fileIndex)
 	{
+			
 		//get all transkriptions of the same file
 		$datarows = array();
 		$datarows = $dc->getRows('$tableName', array(
 			'fileIndex' => $fileIndex
 		));
+		//first check if number of transkriptions was reached:
+		if(sizeof($datarows)<5){ // 5 is temporary threshold -> global constant?
+			return; //didn't reach threshold, don't analyse anything.
+		}
 		
 		$averagevalue = 0;
 		foreach($datarows as $value)
@@ -77,16 +82,22 @@ class DemoClassForMarcello
 		
 		foreach($datarows as $value)
 		{
-			$accuracy = 0;
+			float $accuracy = 0;
+			//calculating accuracy in percentage (0-100);
 			if($averagevalue < $value['sum']){
-				$accuracy = 100*($averagevalue/$value['sum']);
+				$accuracy = 100*($averagevalue/(float)$value['sum']);
 			}else{
-				$accuracy = 100*($value['sum']/$averagevalue);
+				$accuracy = 100*($value['sum']/(float)$averagevalue);
 			}
 			$dc->updateRow('$tableName', array(
-			'evaluation' => $accuracy
-			));
-		}		
+			'evaluation' => (int)$accuracy			
+			));			
+		}
+		
+		//since those rows only get updated when threshold was reached, this snipped is done. we need to change the status in the soundfile database.
+		$dc->updateRow('soundfiles',array(
+			'status' = 'done'
+		));		
 	}	
 	
 	//takes a string and returns a sum of its characters
