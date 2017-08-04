@@ -458,4 +458,24 @@ class DatabaseController
             
         }
     }
+    
+    // Empty a whole table
+    public function emptyTable($table)
+    {
+        // Check table name
+        if (!is_string($table)) {
+            trigger_error("[DatabaseController] 'deleteRow' expected argument 0 to be string.", E_USER_WARNING);
+        } else {
+            $table = $this->link->real_escape_string($table);
+        }
+        
+        $sql = "TRUNCATE TABLE `$table`";
+        
+        // Execute
+        if ($this->link->query($sql) === false) {
+            
+            printf("MYSQL: Error %s\n", $this->link->error);
+            
+        }
+    }
 }
