@@ -336,6 +336,7 @@ class DatabaseController
             if ($stmt->num_rows > 0) {
             
                 $param = array();
+                $finalRow = array();
                 $meta = $stmt->result_metadata();
                 
                 // Define parameters for result binding (where to store result values from row)
@@ -343,17 +344,24 @@ class DatabaseController
                 while ($field = $meta->fetch_field())
                     $param[] = &$row[$field->name];
                 
+                // Save field names seperate in array (hard copy to prevent reference mess)
+                $fieldNames = array_keys($row);
+                
                 // Bind parameteres through array
                 call_user_func_array(array($stmt, 'bind_result'), $param);
                 
                 // Fetch result for one row
                 $stmt->fetch();
                 
+                // Hard copy every field
+                foreach ($fieldNames as $key)
+                    $finalRow[$key] = $row[$key];
+                
                 // Close statement
                 $stmt->close();
                 
                 // Return database content
-                return $row;
+                return $finalRow;
         
             } else {
                 
