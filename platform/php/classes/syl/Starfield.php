@@ -166,6 +166,7 @@ class Starfield
         
     }
     
+    // Save current starfield from a specific user
     public static function userSaveStarfield($userId)
     {
         // Check arguments
@@ -178,20 +179,20 @@ class Starfield
             
             $data = array();
             
+            // Get all stars
             foreach ($userStars as $userStar) {
                 
                 $data[] = self::$dc->getRow('stars', array('id' => $userStar['starId']));
                 
             }
-            print_r($data);
-            /*
+            
+            // Save into db
             self::$dc->insertRow('userSavedStars', array(
                 'userId' => $userId,
-                'data' => json_encode($data),
+                'data' => json_encode($data),       // Save data as JSON
                 'timestamp' => time(),
                 'count' => count($userStars)
             ));
-            */
             
         }
     }
