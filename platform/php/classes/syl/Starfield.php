@@ -40,13 +40,13 @@ class Starfield
     {
         // Check arguments
         if (!is_int($canvasX)) {
-			trigger_error("[Login] 'registerUser' expected Argument 0 to be Integer", E_USER_WARNING);
+			trigger_error("[Starfield] 'generateNew' expected Argument 0 to be Integer", E_USER_WARNING);
 		}
         if (!is_int($canvasY)) {
-			trigger_error("[Login] 'registerUser' expected Argument 1 to be Integer", E_USER_WARNING);
+			trigger_error("[Starfield] 'generateNew' expected Argument 1 to be Integer", E_USER_WARNING);
 		}
         if (!is_int($numberOfStars)) {
-			trigger_error("[Login] 'registerUser' expected Argument 2 to be Integer", E_USER_WARNING);
+			trigger_error("[Starfield] 'generateNew' expected Argument 2 to be Integer", E_USER_WARNING);
 		}
         
         // Initialize
@@ -73,10 +73,10 @@ class Starfield
     {
         // Check arguments
         if (!is_int($userId)) {
-			trigger_error("[Login] 'registerUser' expected Argument 0 to be Integer", E_USER_WARNING);
+			trigger_error("[Starfield] 'addUserToStar' expected Argument 0 to be Integer", E_USER_WARNING);
 		}
         if (!is_int($starId)) {
-			trigger_error("[Login] 'registerUser' expected Argument 1 to be Integer", E_USER_WARNING);
+			trigger_error("[Starfield] 'addUserToStar' expected Argument 1 to be Integer", E_USER_WARNING);
 		}
         
         // Initialize
@@ -131,5 +131,68 @@ class Starfield
         
         return true;
         
+    }
+    
+    // Is user able to save his/her current starfield?
+    // Returns all stars from this user, or false if stars cannot be saved
+    public static function userCanSaveStarfield($userId)
+    {
+        // Check arguments
+        if (!is_int($userId)) {
+			trigger_error("[Starfield] 'userCanSaveStarfield' expected Argument 0 to be Integer", E_USER_WARNING);
+		}
+        
+        // Initialize
+        self::init();
+        
+        // Get all current stars from specified user
+        $userStars = self::$dc->getRows('userStars', array('userId' => $userId));
+        $sequenceNo = $userStars !== null ? count($userStars) : 0;
+        
+        // Are there any stars?
+        if ($sequenceNo > 0) {
+        
+            $savedField = self::$dc->getRows('userSavedStars', array('userId' => $userId, 'count' => $sequenceNo));
+            
+            // Already a copy of this field?
+            if ($savedField === null)
+                return $userStars;
+            else
+                return false;
+            
+        }
+        
+        return false;
+        
+    }
+    
+    public static function userSaveStarfield($userId)
+    {
+        // Check arguments
+        if (!is_int($userId)) {
+			trigger_error("[Starfield] 'userSaveStarfield' expected Argument 0 to be Integer", E_USER_WARNING);
+		}
+        
+        // Can user save starfield?
+        if ($userStars = self::userCanSaveStarfield($userId)) {
+            
+            $data = array();
+            
+            foreach ($userStars as $userStar) {
+                
+                $data[] = self::$dc->getRow('stars', array('id' => $userStar['starId']));
+                
+            }
+            print_r($data);
+            /*
+            self::$dc->insertRow('userSavedStars', array(
+                'userId' => $userId,
+                'data' => json_encode($data),
+                'timestamp' => time(),
+                'count' => count($userStars)
+            ));
+            */
+            
+        }
     }
 }
