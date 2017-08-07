@@ -95,7 +95,7 @@ class DatabaseController
     }
     
     // Update row in database table
-    public function updateRow($table, $values = array(), $conditions = array())
+    public function updateRow($table, $values = array(), $equalCond = array(), $notCond = array())
     {
         // Check table name
         if (!is_string($table)) {
@@ -104,7 +104,7 @@ class DatabaseController
             $table = $this->link->real_escape_string($table);
         }
         
-        $sql = "UPDATE `$table` SET ";
+        $sql1 = "UPDATE `$table` SET ";
         
         $types = '';
         $param = array();
@@ -125,7 +125,7 @@ class DatabaseController
             
             // Define columns to insert
             $element = $this->link->real_escape_string($column);
-            $sql .= "`$element`=?, ";
+            $sql1 .= "`$element`=?, ";
             
             // Add parameters for later binding to prepared statement
             $param[] = &$values[$column];
@@ -133,15 +133,17 @@ class DatabaseController
         }
         
         // First fragment of query
-        $sql = substr($sql, 0, strlen($sql) - 2);
+        $sql1 = substr($sql1, 0, strlen($sql1) - 2);
+        $sql1 .= " WHERE ";
         
-        // Are there conditions for updating?
-        if (count($conditions) > 0) {
-            
-            $sql .= " WHERE ";
+        // Second fragment of the query
+        $sql2 = "";
+        
+        // Are there equal conditions for updating?
+        if (count($equalCond) > 0) {
             
             // For every condition
-            foreach ($conditions as $column => $value) {
+            foreach ($equalCond as $column => $value) {
                 
                 // Is the value a string or an integer?
                 if (is_string($value)) {
@@ -156,21 +158,55 @@ class DatabaseController
                 
                 // Define columns to insert
                 $element = $this->link->real_escape_string($column);
-                $sql .= "`$element`=? AND ";
+                $sql2 .= "`$element`=? AND ";
                 
                 // Add parameters for later binding to prepared statement
-                $param[] = &$conditions[$column];
+                $param[] = &$equalCond[$column];
                 
             }
             
             // Second fragment of query
-            $sql = substr($sql, 0, strlen($sql) - 5);
-            
-        } else {
-            
-            $sql .= " WHERE 1";
+            $sql2 = substr($sql2, 0, strlen($sql2) - 5);
             
         }
+        
+        // Are there not conditions for updating?
+        if (count($notCond) > 0) {
+            
+            $sql2 .= " AND ";
+            
+            // For every condition
+            foreach ($notCond as $column => $value) {
+                
+                // Is the value a string or an integer?
+                if (is_string($value)) {
+                    
+                    $types .= 's';
+                    
+                } else {
+                    
+                    $types .= 'i';
+                    
+                }
+                
+                // Define columns to insert
+                $element = $this->link->real_escape_string($column);
+                $sql2 .= "`$element`!=? AND ";
+                
+                // Add parameters for later binding to prepared statement
+                $param[] = &$notCond[$column];
+                
+            }
+            
+            // Second fragment of query
+            $sql2 = substr($sql2, 0, strlen($sql2) - 5);
+            
+        }
+        
+        // Any conditions?
+        $sql2 = strlen($sql2) > 0 ? $sql2 : "1";
+        
+        $sql = $sql1.$sql2;
         
         // Add types parameter
         array_unshift($param, $types);
@@ -195,7 +231,7 @@ class DatabaseController
     }
     
     // Get row content from database table
-    public function getRow($table, $conditions = array())
+    public function getRow($table, $equalCond = array(), $notCond = array())
     {
         // Check table name
         if (!is_string($table)) {
@@ -204,38 +240,79 @@ class DatabaseController
             $table = $this->link->real_escape_string($table);
         }
         
-        $sql = "SELECT * FROM `$table` WHERE ";
+        $sql1 = "SELECT * FROM `$table` WHERE ";
+        $sql2 = "";
         
         $types = '';
         $param = array();
         $row = array();
         
-        // For every condition
-        foreach ($conditions as $column => $value) {
+        // Are there equal conditions for updating?
+        if (count($equalCond) > 0) {
             
-            // Is the value a string or an integer?
-            if (is_string($value)) {
+            // For every condition
+            foreach ($equalCond as $column => $value) {
                 
-                $types .= 's';
+                // Is the value a string or an integer?
+                if (is_string($value)) {
+                    
+                    $types .= 's';
+                    
+                } else {
+                    
+                    $types .= 'i';
+                    
+                }
                 
-            } else {
+                // Define columns to insert
+                $element = $this->link->real_escape_string($column);
+                $sql2 .= "`$element`=? AND ";
                 
-                $types .= 'i';
+                // Add parameters for later binding to prepared statement
+                $param[] = &$equalCond[$column];
                 
             }
             
-            // Define columns to insert
-            $element = $this->link->real_escape_string($column);
-            $sql .= "`$element`=? AND ";
-            
-            // Add parameters for later binding to prepared statement
-            $param[] = &$conditions[$column];
+            // Strip 'AND' from query
+            $sql2 = substr($sql2, 0, strlen($sql2) - 5);
             
         }
         
-        // Strip 'AND' from query
-        $sql = substr($sql, 0, strlen($sql) - 5);
-        $sql .= " LIMIT 1";
+        // Are there not conditions for updating?
+        if (count($notCond) > 0) {
+            
+            $sql2 .= " AND ";
+            
+            // For every condition
+            foreach ($notCond as $column => $value) {
+                
+                // Is the value a string or an integer?
+                if (is_string($value)) {
+                    
+                    $types .= 's';
+                    
+                } else {
+                    
+                    $types .= 'i';
+                    
+                }
+                
+                // Define columns to insert
+                $element = $this->link->real_escape_string($column);
+                $sql2 .= "`$element`!=? AND ";
+                
+                // Add parameters for later binding to prepared statement
+                $param[] = &$notCond[$column];
+                
+            }
+            
+            // Second fragment of query
+            $sql2 = substr($sql2, 0, strlen($sql2) - 5);
+            
+        }
+        
+        $sql2 = strlen($sql2) > 0 ? $sql2 : "1";
+        $sql = $sql1.$sql2." LIMIT 1";
         
         // Add types parameter
         array_unshift($param, $types);
@@ -259,6 +336,7 @@ class DatabaseController
             if ($stmt->num_rows > 0) {
             
                 $param = array();
+                $finalRow = array();
                 $meta = $stmt->result_metadata();
                 
                 // Define parameters for result binding (where to store result values from row)
@@ -266,17 +344,24 @@ class DatabaseController
                 while ($field = $meta->fetch_field())
                     $param[] = &$row[$field->name];
                 
+                // Save field names seperate in array (hard copy to prevent reference mess)
+                $fieldNames = array_keys($row);
+                
                 // Bind parameteres through array
                 call_user_func_array(array($stmt, 'bind_result'), $param);
                 
                 // Fetch result for one row
                 $stmt->fetch();
                 
+                // Hard copy every field
+                foreach ($fieldNames as $key)
+                    $finalRow[$key] = $row[$key];
+                
                 // Close statement
                 $stmt->close();
                 
                 // Return database content
-                return $row;
+                return $finalRow;
         
             } else {
                 
@@ -295,7 +380,7 @@ class DatabaseController
     }
     
     // Get multiple rows from database table returned as array (every element one row)
-    public function getRows($table, $conditions = array(), $max = 65535)
+    public function getRows($table, $equalCond = array(), $notCond = array(), $max = 65535)
     {
         // Check table name
         if (!is_string($table)) {
@@ -304,38 +389,79 @@ class DatabaseController
             $table = $this->link->real_escape_string($table);
         }
         
-        $sql = "SELECT * FROM `$table` WHERE ";
+        $sql1 = "SELECT * FROM `$table` WHERE ";
+        $sql2 = "";
         
         $types = '';
         $param = array();
         $rows = array();
         
-        // For every condition
-        foreach ($conditions as $column => $value) {
+        // Are there equal conditions for updating?
+        if (count($equalCond) > 0) {
             
-            // Is the value a string or an integer?
-            if (is_string($value)) {
+            // For every condition
+            foreach ($equalCond as $column => $value) {
                 
-                $types .= 's';
+                // Is the value a string or an integer?
+                if (is_string($value)) {
+                    
+                    $types .= 's';
+                    
+                } else {
+                    
+                    $types .= 'i';
+                    
+                }
                 
-            } else {
+                // Define columns to insert
+                $element = $this->link->real_escape_string($column);
+                $sql2 .= "`$element`=? AND ";
                 
-                $types .= 'i';
+                // Add parameters for later binding to prepared statement
+                $param[] = &$equalCond[$column];
                 
             }
             
-            // Define columns to insert
-            $element = $this->link->real_escape_string($column);
-            $sql .= "`$element`=? AND ";
-            
-            // Add parameters for later binding to prepared statement
-            $param[] = &$conditions[$column];
+            // Strip 'AND' from query
+            $sql2 = substr($sql2, 0, strlen($sql2) - 5);
             
         }
         
-        // Strip 'AND' from query
-        $sql = substr($sql, 0, strlen($sql) - 5);
-        $sql .= " LIMIT ".(string)$max;
+        // Are there not conditions for updating?
+        if (count($notCond) > 0) {
+            
+            $sql2 .= " AND ";
+            
+            // For every condition
+            foreach ($notCond as $column => $value) {
+                
+                // Is the value a string or an integer?
+                if (is_string($value)) {
+                    
+                    $types .= 's';
+                    
+                } else {
+                    
+                    $types .= 'i';
+                    
+                }
+                
+                // Define columns to insert
+                $element = $this->link->real_escape_string($column);
+                $sql2 .= "`$element`!=? AND ";
+                
+                // Add parameters for later binding to prepared statement
+                $param[] = &$notCond[$column];
+                
+            }
+            
+            // Second fragment of query
+            $sql2 = substr($sql2, 0, strlen($sql2) - 5);
+            
+        }
+        
+        $sql2 = strlen($sql2) > 0 ? $sql2 : "1";
+        $sql = $sql1.$sql2." LIMIT ".(string)$max;
         
         // Add types parameter
         array_unshift($param, $types);
@@ -367,12 +493,24 @@ class DatabaseController
                 while ($field = $meta->fetch_field())
                     $param[] = &$row[$field->name];
                 
+                // Save field names seperate in array (hard copy to prevent reference mess)
+                $fieldNames = array_keys($row);
+                
                 // Bind parameteres through array
                 call_user_func_array(array($stmt, 'bind_result'), $param);
                 
                 // Fetch result for all rows
-                while ($stmt->fetch())
-                    array_push($rows, $row);
+                $i = 0;
+                
+                while ($stmt->fetch()) {
+                    
+                    // Hard copy every field
+                    foreach ($fieldNames as $key)
+                        $rows[$i][$key] = $row[$key];
+                    
+                    $i++;
+                    
+                }
                 
                 // Close statement
                 $stmt->close();
@@ -397,7 +535,7 @@ class DatabaseController
     }
     
     // Delete a specific row
-    public function deleteRow($table, $conditions = array())
+    public function deleteRow($table, $equalCond = array(), $notCond = array())
     {
         // Check table name
         if (!is_string($table)) {
@@ -406,36 +544,78 @@ class DatabaseController
             $table = $this->link->real_escape_string($table);
         }
         
-        $sql = "DELETE FROM `$table` WHERE ";
+        $sql1 = "DELETE FROM `$table` WHERE ";
+        $sql2 = "";
         
         $types = '';
         $param = array();
         
-        // For every condition
-        foreach ($conditions as $column => $value) {
+        // Are there equal conditions for updating?
+        if (count($equalCond) > 0) {
             
-            // Is the value a string or an integer?
-            if (is_string($value)) {
+            // For every condition
+            foreach ($equalCond as $column => $value) {
                 
-                $types .= 's';
+                // Is the value a string or an integer?
+                if (is_string($value)) {
+                    
+                    $types .= 's';
+                    
+                } else {
+                    
+                    $types .= 'i';
+                    
+                }
                 
-            } else {
+                // Define columns to insert
+                $element = $this->link->real_escape_string($column);
+                $sql2 .= "`$element`=? AND ";
                 
-                $types .= 'i';
+                // Add parameters for later binding to prepared statement
+                $param[] = &$equalCond[$column];
                 
             }
             
-            // Define columns to insert
-            $element = $this->link->real_escape_string($column);
-            $sql .= "`$element`=? AND ";
-            
-            // Add parameters for later binding to prepared statement
-            $param[] = &$conditions[$column];
+            // Strip 'AND' from query
+            $sql2 = substr($sql2, 0, strlen($sql2) - 5);
             
         }
         
-        // Strip 'AND' from query
-        $sql = substr($sql, 0, strlen($sql) - 5);
+        // Are there not conditions for updating?
+        if (count($notCond) > 0) {
+            
+            $sql2 .= " AND ";
+            
+            // For every condition
+            foreach ($notCond as $column => $value) {
+                
+                // Is the value a string or an integer?
+                if (is_string($value)) {
+                    
+                    $types .= 's';
+                    
+                } else {
+                    
+                    $types .= 'i';
+                    
+                }
+                
+                // Define columns to insert
+                $element = $this->link->real_escape_string($column);
+                $sql2 .= "`$element`!=? AND ";
+                
+                // Add parameters for later binding to prepared statement
+                $param[] = &$notCond[$column];
+                
+            }
+            
+            // Second fragment of query
+            $sql2 = substr($sql2, 0, strlen($sql2) - 5);
+            
+        }
+        
+        $sql2 = strlen($sql2) > 0 ? $sql2 : "1";
+        $sql = $sql1.$sql2;
         
         // Add types parameter
         array_unshift($param, $types);
@@ -453,6 +633,26 @@ class DatabaseController
             $stmt->close();
             
         } else {
+            
+            printf("MYSQL: Error %s\n", $this->link->error);
+            
+        }
+    }
+    
+    // Empty a whole table
+    public function emptyTable($table)
+    {
+        // Check table name
+        if (!is_string($table)) {
+            trigger_error("[DatabaseController] 'deleteRow' expected argument 0 to be string.", E_USER_WARNING);
+        } else {
+            $table = $this->link->real_escape_string($table);
+        }
+        
+        $sql = "TRUNCATE TABLE `$table`";
+        
+        // Execute
+        if ($this->link->query($sql) === false) {
             
             printf("MYSQL: Error %s\n", $this->link->error);
             
