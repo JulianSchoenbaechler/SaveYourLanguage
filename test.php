@@ -21,10 +21,10 @@
     $link = DatabaseController::connect();
     $dc = new DatabaseController($link);
 	
-	$celoclass = new DemoClassForMarcello();
+	$celoClass = new DemoClassForMarcello();
 	
 	$teststring = "this is some test string";
-	$sum = $celoclass->CalculateSum($teststring);
+	$sum = $celoClass->CalculateSum($teststring);
 	
 	echo $sum;
     // Close database
