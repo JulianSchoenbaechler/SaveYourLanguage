@@ -7,15 +7,14 @@
  * @author           Marcel Arioli
  * @Copyright        (c) 2017 University of the Arts, Zurich
  * @Included since   v0.0.1
- * @Repository       https://github.com/JulianSchoenbaechler/SaveYourLanguage
+ * @link             https://github.com/JulianSchoenbaechler/SaveYourLanguage
  */
-
-//namespace SaveYourLanguage;
+namespace SaveYourLanguage;
 
 // Include library files
-require_once dirname(__FILE__).'/../php/classes/db/DatabaseController.php';
-require_once dirname(__FILE__).'/../php/classes/syl/Statistics.php';
-require_once dirname(__FILE__).'/../php/classes/login/Login.php';
+require_once dirname(__FILE__).'classes/db/DatabaseController.php';
+require_once dirname(__FILE__).'classes/syl/Statistics.php';
+require_once dirname(__FILE__).'classes/login/Login.php';
     
 use SaveYourLanguage\Database\DatabaseController;
 use SaveYourLanguage\Statistics\Statistics;
