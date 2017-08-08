@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<style>
+h1 {
+    font-size: 21px;    
+}
+input[type="text"] { 
+border: 1px solid #000000 ;
+font-size: 21px;
+width: 500px;
+text-align: center;
+}
+
+input[type="submit"] { 
+border: 2px solid #0000ff ;
+font-size : 25px;
+align: right;
+text-align: center;
+opacity: 0.5;
+}
+input[type="submit"]:hover { 
+border: none;
+opacity: 1;
+background-color: #0000ffff;
+font-size : 25px;
+align: right;
+text-align: center;
+
+}
+</style>
+</head>
+<body>
+<form action="./platform/php/classes/syl/transkription.php" method="post" accept-charset="ISO-8859-1"> 
+  <input type="text" name="transkription" >
+ <br><br><br>
+  <input type="submit" value="Send Data">
+</form> 
+</body>
+</html>

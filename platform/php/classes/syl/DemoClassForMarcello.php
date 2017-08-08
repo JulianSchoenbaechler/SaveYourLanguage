@@ -1,6 +1,6 @@
 <?php
 /*
- * User statistc
+ * User statistic
  *
  * A class providing useful functions for creating user transcription statistics.
  *
@@ -14,15 +14,14 @@
 namespace SaveYourLanguage\Statistics;
 
 // Shorthand for DatabaseController by namespace
+
+require_once dirname(__FILE__).'/../db/DatabaseController.php';
+
 use SaveYourLanguage\Database\DatabaseController;
-
-require_once 'platform/php/classes/db/DatabaseController.php';  
-
 
 class DemoClassForMarcello
 {
-    // Properties
-    private $aVariable;
+    
     
     // Constructor
     public function __construct()
@@ -63,11 +62,12 @@ class DemoClassForMarcello
 	//this method compares sums of all transkriptions of a soundFile and updates the accuracy for that transcription
 	public function AnalyseData($tableName, $fileIndex)
 	{
-			
+		$link = DatabaseController::connect();
+		$dc = new DatabaseController($link);
 		//get all transkriptions of the same file
 		$datarows = array();
-		$datarows = $dc->getRows('$tableName', array(
-			'fileIndex' => $fileIndex
+		$datarows = $dc->getRows($tableName, array(
+			'snippedid' => $fileIndex
 		));
 		//first check if number of transkriptions was reached:
 		if(sizeof($datarows)<5){ // 5 is temporary threshold -> global constant?
@@ -75,29 +75,31 @@ class DemoClassForMarcello
 		}
 		
 		$averagevalue = 0;
+		$counter = 0;
 		foreach($datarows as $value)
 		{
 			$averagevalue = $averagevalue + $value['sum'];
+			$counter = $counter + 1;
 		}
-		
+		$averagevalue = (float)$averagevalue/(float)$counter;
 		foreach($datarows as $value)
 		{
-			float $accuracy = 0;
+			$accuracy = 0;
 			//calculating accuracy in percentage (0-100);
 			if($averagevalue < $value['sum']){
-				$accuracy = 100*($averagevalue/(float)$value['sum']);
+				$accuracy = 100*((float)$averagevalue/(float)$value['sum']);
 			}else{
-				$accuracy = 100*($value['sum']/(float)$averagevalue);
+				$accuracy = 100*((float)$value['sum']/(float)$averagevalue);
 			}
-			$dc->updateRow('$tableName', array(
-			'evaluation' => (int)$accuracy			
-			));			
+			//update row needs 2 arrays, first the values, then the conditions.
+			$dc->updateRow($tableName, array('evaluation' => (int)$accuracy),array('snippedid'=>$fileIndex,'sum'=>$value['sum']));			
 		}
 		
 		//since those rows only get updated when threshold was reached, this snipped is done. we need to change the status in the soundfile database.
-		$dc->updateRow('soundfiles',array(
-			'status' = 'done'
-		));		
+		$dc->updateRow('soundfiles',array('status' => 'done'),array('id'=>$fileIndex));
+		// Close database
+		DatabaseController::disconnect($link);
+		unset($link);
 	}	
 	
 	//takes a string and returns a sum of its characters
