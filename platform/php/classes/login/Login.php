@@ -22,6 +22,8 @@ use SaveYourLanguage\Config;
 
 class Login
 {
+    public static $dbConnection;
+    
     private static $initialized = false;
     protected static $dc;
     
@@ -30,8 +32,8 @@ class Login
     {
         if (self::$initialized === false) {
             
-            $link = DatabaseController::connect();
-            self::$dc = new DatabaseController($link);
+            self::$dbConnection = DatabaseController::connect();
+            self::$dc = new DatabaseController(self::$dbConnection);
             
             self::$initialized = true;
             
@@ -257,5 +259,4 @@ class Login
         return false;               // No corresponding session found
         
     }
-    
 }
