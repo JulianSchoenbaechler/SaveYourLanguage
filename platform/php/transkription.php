@@ -4,11 +4,12 @@
  *
  * A class that gets addressed when a user sends data from a transkription.
  *
- * Author           Marcel Arioli
- * Copyright        (c) 2017 University of the Arts, Zurich
- * Included since   v0.0.1
- * Repository       https://github.com/JulianSchoenbaechler/SaveYourLanguage
+ * @author           Marcel Arioli
+ * @Copyright        (c) 2017 University of the Arts, Zurich
+ * @Included since   v0.0.1
+ * @Repository       https://github.com/JulianSchoenbaechler/SaveYourLanguage
  */
+
 //namespace SaveYourLanguage;
 
 // Include library files
