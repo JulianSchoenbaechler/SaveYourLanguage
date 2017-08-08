@@ -79,6 +79,7 @@ class Login
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
             'email' => $email,
+            'verified' => 0,
             'login_attempts' => 0,
             'last_attempt' => time(),
             'recover' => 'none',
