@@ -31,9 +31,9 @@ use SaveYourLanguage\Database\DatabaseController;
 use SaveYourLanguage\Login\Login;
 use SaveYourLanguage\Login\Crypt;
 use SaveYourLanguage\Config;
-$userId = Login::isUserLoggedIn();
+
 // Check if user logged in
-if ($userId = 1) {
+if ($userId = Login::isUserLoggedIn()) {
     
     $dc = new DatabaseController(Login::$dbConnection);
     $task = isset($_POST['task']) ? strtolower(trim($_POST['task'])) : 'none';
