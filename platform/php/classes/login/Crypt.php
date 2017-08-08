@@ -37,7 +37,10 @@ class Crypt
         // Split the encrypted data from the IV
         $cryptStrings =  explode('::', base64_decode($data), 2);
         
-        return openssl_decrypt($cryptStrings[0], 'AES-256-CBC', $encryptionKey, 0, $cryptStrings[1]);
+        if (isset($cryptStrings[1]))
+            return openssl_decrypt($cryptStrings[0], 'AES-256-CBC', $encryptionKey, 0, $cryptStrings[1]);
+        else
+            return false;
     }
     
     // Generate 256bit crypto-key
