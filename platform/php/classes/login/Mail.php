@@ -25,7 +25,7 @@ use PHPMailer;
 class Mail
 {
     // TODO: set to false for production usage
-    const NON_PRODUCTION = true;
+    const NON_PRODUCTION = false;
     
     protected $mailer;
     protected $savedContent;

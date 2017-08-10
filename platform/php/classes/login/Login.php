@@ -15,6 +15,7 @@ namespace SaveYourLanguage\Login;
 require_once dirname(__FILE__).'/../db/DatabaseController.php';
 require_once dirname(__FILE__).'/Crypt.php';
 require_once dirname(__FILE__).'/Session.php';
+require_once dirname(__FILE__).'/Mail.php';
 require_once dirname(__FILE__).'/../Config.php';
 
 use SaveYourLanguage\Database\DatabaseController;
@@ -74,6 +75,9 @@ class Login
         // User crypto-key for sensitive data
         putenv('USER_CRYPTO_KEY='.Crypt::generateCryptoKey());
         
+        // String for validating email
+        $recoverString = Crypt::generateString(64);
+        
         // Adding new user data
         $newUserRow = array(
             'username' => $username,
@@ -82,7 +86,7 @@ class Login
             'verified' => 0,
             'login_attempts' => 0,
             'last_attempt' => time(),
-            'recover' => 'none',
+            'recover' => Crypt::encryptAES256($recoverString.'::'.$email, getenv('USER_CRYPTO_KEY', true)),
             'crypt' => Crypt::encryptBlowfish(getenv('USER_CRYPTO_KEY', true), Config::CRYPTO_KEY),
             'public_email' => $publicEmail ? 1 : 0,
             'name' => $name == null ? 'none' : Crypt::encryptAES256($name, getenv('USER_CRYPTO_KEY', true)),
@@ -90,8 +94,22 @@ class Login
             'phone' => $phone == null ? 'none' : Crypt::encryptAES256($phone, getenv('USER_CRYPTO_KEY', true))
         );
         
+        // Add user to db
         self::$dc->insertRow('users', $newUserRow);
-        return true;
+        
+        // Send user a verification mail
+        $msg = file_get_contents(dirname(__FILE__).'/../../../data/register-mail-template.html');
+        $msg = str_replace('$=verification=$', "https://saveyourlanguage.com/verification?code=$recoverString", $msg);
+        $msg = str_replace('$=date=$', date("F d, Y", time()), $msg);
+        $mail = new Mail();
+        $mail->addRecipient($email, $name !== null ? $name : $username);
+        $mail->setSubject('SaveYourLanguage.com - Registrierung');
+        $mail->setContent($msg);
+        
+        if ($mail->send())
+            return true;
+        else
+            return false;
     }
     
     /*
