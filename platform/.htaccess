@@ -32,5 +32,5 @@ RewriteEngine on
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !\.php$
 RewriteCond %{REQUEST_URI} [^/]$
-RewriteRule ^(.*)$ $1.php [L,QSA]
+RewriteRule ^(.*)$ php/$1.php [L,QSA]
 </IfModule>
