@@ -26,4 +26,10 @@ class Config
     
     // Main crypto-key
     const CRYPTO_KEY                = 'TVKVg0nPG+2qHl38Wk4cttZTUyGdBg6pUAJqkXmYTN8=';   // For development only!!!
+    
+    // SMTP login information
+    const SMTP_HOST                 = 'host.mail.com';
+    const SMTP_PORT                 = 587;
+    const SMTP_LOGIN                = 'user';
+    const SMTP_PASSWORD             = 'password';
 }
