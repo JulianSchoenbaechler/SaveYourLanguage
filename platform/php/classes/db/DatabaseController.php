@@ -534,6 +534,174 @@ class DatabaseController
         return null;
     }
     
+    // Get multiple rows from database table returned as array (every element one row)
+    // The rows will be read by specified order
+    public function getRowsOrderedBy($table, $equalCond = array(), $notCond = array(), $orderBy = null, $ascending = true, $max = 65535)
+    {
+        // Check table name
+        if (!is_string($table)) {
+            trigger_error("[DatabaseController] 'getRow' expected argument 0 to be string.", E_USER_WARNING);
+        } else {
+            $table = $this->link->real_escape_string($table);
+        }
+        
+        $sql1 = "SELECT * FROM `$table` WHERE ";
+        $sql2 = "";
+        
+        $types = '';
+        $param = array();
+        $rows = array();
+        
+        // Are there equal conditions for updating?
+        if (count($equalCond) > 0) {
+            
+            // For every condition
+            foreach ($equalCond as $column => $value) {
+                
+                // Is the value a string or an integer?
+                if (is_string($value)) {
+                    
+                    $types .= 's';
+                    
+                } else {
+                    
+                    $types .= 'i';
+                    
+                }
+                
+                // Define columns to insert
+                $element = $this->link->real_escape_string($column);
+                $sql2 .= "`$element`=? AND ";
+                
+                // Add parameters for later binding to prepared statement
+                $param[] = &$equalCond[$column];
+                
+            }
+            
+            // Strip 'AND' from query
+            $sql2 = substr($sql2, 0, strlen($sql2) - 5);
+            
+        }
+        
+        $sql2 = strlen($sql2) > 0 ? $sql2 : "1";
+        
+        // Are there not conditions for updating?
+        if (count($notCond) > 0) {
+            
+            $sql2 .= " AND ";
+            
+            // For every condition
+            foreach ($notCond as $column => $value) {
+                
+                // Is the value a string or an integer?
+                if (is_string($value)) {
+                    
+                    $types .= 's';
+                    
+                } else {
+                    
+                    $types .= 'i';
+                    
+                }
+                
+                // Define columns to insert
+                $element = $this->link->real_escape_string($column);
+                $sql2 .= "`$element`!=? AND ";
+                
+                // Add parameters for later binding to prepared statement
+                $param[] = &$notCond[$column];
+                
+            }
+            
+            // Second fragment of query
+            $sql2 = substr($sql2, 0, strlen($sql2) - 5);
+            
+        }
+        
+        // Are there not conditions for ordering?
+        if ($orderBy !== null) {
+            
+            $sql2 .= " ORDER BY ";
+            
+            $element = $this->link->real_escape_string($orderBy);
+            $sql2 .= "`$element`";
+            $sql2 .= $ascending ? " ASC" : " DESC";
+            
+        }
+        
+        $sql = $sql1.$sql2." LIMIT ".(string)$max;
+        
+        // Add types parameter
+        array_unshift($param, $types);
+        
+        // Prepare statement
+        if ($stmt = $this->link->prepare($sql)) {
+            
+            // Bind parameters through array
+            call_user_func_array(array($stmt, 'bind_param'), $param);
+            
+            // Execute
+            if ($stmt->execute()  === false)
+                printf("MYSQL Statement: Error %s\n", $stmt->error);
+            
+            unset($param);
+            
+            // Result
+            $stmt->store_result();
+            
+            // Are there any selected rows?
+            if ($stmt->num_rows > 0) {
+            
+                $param = array();
+                $row = array();
+                $meta = $stmt->result_metadata();
+                
+                // Define parameters for result binding (where to store result values from row)
+                // For every field...
+                while ($field = $meta->fetch_field())
+                    $param[] = &$row[$field->name];
+                
+                // Save field names seperate in array (hard copy to prevent reference mess)
+                $fieldNames = array_keys($row);
+                
+                // Bind parameteres through array
+                call_user_func_array(array($stmt, 'bind_result'), $param);
+                
+                // Fetch result for all rows
+                $i = 0;
+                
+                while ($stmt->fetch()) {
+                    
+                    // Hard copy every field
+                    foreach ($fieldNames as $key)
+                        $rows[$i][$key] = $row[$key];
+                    
+                    $i++;
+                    
+                }
+                
+                // Close statement
+                $stmt->close();
+                
+                // Return database content
+                return $rows;
+        
+            } else {
+                
+                return null;
+                
+            }
+            
+        } else {
+            
+            printf("MYSQL: Error %s\n", $this->link->error);
+            
+        }
+        
+        // Error
+        return null;
+    }
+    
     // Delete a specific row
     public function deleteRow($table, $equalCond = array(), $notCond = array())
     {
