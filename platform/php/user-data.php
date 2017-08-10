@@ -25,11 +25,14 @@ namespace SaveYourLanguage;
 // Include library files
 require_once 'classes/db/DatabaseController.php';
 require_once 'classes/login/Login.php';
+require_once 'classes/login/Crypt.php';
+require_once 'classes/login/Mail.php';
 require_once 'classes/Config.php';
 
 use SaveYourLanguage\Database\DatabaseController;
 use SaveYourLanguage\Login\Login;
 use SaveYourLanguage\Login\Crypt;
+use SaveYourLanguage\Login\Mail;
 use SaveYourLanguage\Config;
 
 // Check if user logged in
@@ -73,19 +76,33 @@ if ($userId = Login::isUserLoggedIn()) {
                 
                 $updateData = array();
                 
+                // User crypto-key for sensitive data
+                putenv('USER_CRYPTO_KEY='.Crypt::decryptBlowfish($userData['crypt'], Config::CRYPTO_KEY));
+                
                 // Email changed -> check mail address and create confirmation though account recovery
                 if ($email !== null) {
                     
                     // Valid email address?
                     if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         
-                        $recoverString = Crypt::generateString(128);
+                        $recoverString = Crypt::generateString(64);
                         
                         // Save new email temporarily in recover string
-                        $updateData['recover'] = $recoverString.'::'.$email;
+                        $updateData['recover'] = Crypt::encryptAES256($recoverString.'::'.$email, getenv('USER_CRYPTO_KEY', true));
                         
-                        // Blabla send mail
-                        // TODO....
+                        // Send user a verification mail
+                        $msg = file_get_contents('../data/new-mail-template.html');
+                        $msg = str_replace('$=verification=$', "https://saveyourlanguage.com/verification?code=$recoverString", $msg);
+                        $msg = str_replace('$=date=$', date("F d, Y", time()), $msg);
+                        $mail = new Mail();
+                        $mail->addRecipient($email, $name !== null ? $name : $userData['username']);
+                        $mail->setSubject('SaveYourLanguage.com - Neue E-Mail Adresse');
+                        $mail->setContent($msg);
+                        
+                        if ($mail->send())
+                            return true;
+                        else
+                            return false;
                         
                     } else {
                         
@@ -101,19 +118,18 @@ if ($userId = Login::isUserLoggedIn()) {
                 }
                 
                 // Basic data -> only password confirmation needed, no email confirmation
-                $userCryptoKey = Crypt::decryptBlowfish($userData['crypt'], Config::CRYPTO_KEY);
                 
                 if ($publicEmail !== null)
                     $updateData['public_email'] = $publicEmail;
                 
                 if ($name !== null)
-                    $updateData['name'] = strlen($name) > 0 ? Crypt::encryptAES256($name, $userCryptoKey) : 'none';
+                    $updateData['name'] = strlen($name) > 0 ? Crypt::encryptAES256($name, getenv('USER_CRYPTO_KEY', true)) : 'none';
                 
                 if ($address !== null)
-                    $updateData['address'] = strlen($address) > 0 ? Crypt::encryptAES256($address, $userCryptoKey) : 'none';
+                    $updateData['address'] = strlen($address) > 0 ? Crypt::encryptAES256($address, getenv('USER_CRYPTO_KEY', true)) : 'none';
                 
                 if ($phone !== null)
-                    $updateData['phone'] = strlen($phone) > 0 ? Crypt::encryptAES256($phone, $userCryptoKey) : 'none';
+                    $updateData['phone'] = strlen($phone) > 0 ? Crypt::encryptAES256($phone, getenv('USER_CRYPTO_KEY', true)) : 'none';
                 
                 // Update password
                 if ($newPassword !== null) {
