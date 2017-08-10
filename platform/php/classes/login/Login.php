@@ -99,7 +99,7 @@ class Login
         
         // Send user a verification mail
         $msg = file_get_contents(dirname(__FILE__).'/../../../data/register-mail-template.html');
-        $msg = str_replace('$=verification=$', "https://saveyourlanguage.com/verification?code=$recoverString", $msg);
+        $msg = str_replace('$=verification=$', "https://saveyourlanguage.com/verification?code=$recoverString&email=$email", $msg);
         $msg = str_replace('$=date=$', date("F d, Y", time()), $msg);
         $mail = new Mail();
         $mail->addRecipient($email, $name !== null ? $name : $username);
