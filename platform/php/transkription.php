@@ -1,20 +1,21 @@
 ﻿<?php
-/**
- * User input
- *
- * A class that gets addressed when a user sends data from a transkription.
- *
- * @author           Marcel Arioli
- * @Copyright        (c) 2017 University of the Arts, Zurich
- * @Included since   v0.0.1
- * @link             https://github.com/JulianSchoenbaechler/SaveYourLanguage
- */
+/*
+ * User input
+ *
+ * A script that gets addressed when a user sends data from a transkription.
+ *
+ * author           Marcel Arioli
+ * copyright        (c) 2017 University of the Arts, Zurich
+ * since            v0.0.1
+ * link             https://github.com/JulianSchoenbaechler/SaveYourLanguage
+ */
+
 namespace SaveYourLanguage;
 
 // Include library files
-require_once dirname(__FILE__).'classes/db/DatabaseController.php';
-require_once dirname(__FILE__).'classes/syl/Statistics.php';
-require_once dirname(__FILE__).'classes/login/Login.php';
+require_once dirname(__FILE__).'/classes/db/DatabaseController.php';
+require_once dirname(__FILE__).'/classes/syl/Statistics.php';
+require_once dirname(__FILE__).'/classes/login/Login.php';
     
 use SaveYourLanguage\Database\DatabaseController;
 use SaveYourLanguage\Statistics\Statistics;
@@ -44,7 +45,7 @@ $dc->insertRow('transkriptions',array(
     'sum' => $sum,
     'status' => 'unsolved'
 ));
-
+echo 'inserted';
 //disconnect
 DatabaseController::disconnect($link);
 unset($link);
