@@ -69,7 +69,7 @@ class Starfield
     }
     
     // Add a new star to the users sequence
-    public static function addUserToStar($userId, $starId)
+    public static function addUserToStar($userId, $starId, $snippedId)
     {
         // Check arguments
         if (!is_int($userId)) {
@@ -77,6 +77,9 @@ class Starfield
 		}
         if (!is_int($starId)) {
 			trigger_error("[Starfield] 'addUserToStar' expected Argument 1 to be Integer", E_USER_WARNING);
+		}
+        if (!is_int($snippedId)) {
+			trigger_error("[Starfield] 'addUserToStar' expected Argument 2 to be Integer", E_USER_WARNING);
 		}
         
         // Initialize
@@ -119,7 +122,9 @@ class Starfield
         self::$dc->insertRow('userStars', array(
             'userId' => $userId,
             'starId' => $starId,
-            'sequence' => $sequenceNo
+            'snippedId' => $snippedId,
+            'sequence' => $sequenceNo,
+            'active' => 1
         ));
         
         // Update star level
@@ -131,6 +136,24 @@ class Starfield
         
         return true;
         
+    }
+    
+    // Kills the star a user has already made where the snipped was not correct
+    public static function killUserStar($userId, $snippedId)
+    {
+        // Check arguments
+        if (!is_int($userId)) {
+			trigger_error("[Starfield] 'addUserToStar' expected Argument 0 to be Integer", E_USER_WARNING);
+		}
+        if (!is_int($snippedId)) {
+			trigger_error("[Starfield] 'addUserToStar' expected Argument 1 to be Integer", E_USER_WARNING);
+		}
+        
+        // Initialize
+        self::init();
+        
+        // Make star inactive
+        self::$dc->updateRow('userStars', array('active' => 0), array('userId' => $userId, 'snippedId' => $snippedId));
     }
     
     // Is user able to save his/her current starfield?
