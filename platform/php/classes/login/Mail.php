@@ -106,7 +106,7 @@ class Mail
     public function send()
     {
         if (Mail::NON_PRODUCTION)
-            return;
+            return true;
         
         if (!$this->mailer->send())
             return $this->mailer->ErrorInfo;
