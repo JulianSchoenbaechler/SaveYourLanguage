@@ -28,9 +28,9 @@ RewriteEngine on
 #RewriteCond %{REQUEST_FILENAME} !-d
 #RewriteRule ^(.*)/$ $1 [L,R=302] # for production use 301 redirect
 
-#RewriteCond %{REQUEST_FILENAME} -f
-#RewriteRule ^(.*)\.html$ $1 [NC]
-#RewriteRule ^(.*)\.htm$ $1 [NC]
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(.*)\.html$ $1 [NC]
+RewriteRule ^(.*)\.htm$ $1 [NC]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !\.php$

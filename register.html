@@ -67,22 +67,22 @@
                     <p style="font-weight: bold;">Register</p>
                     <form action="register" method="post" accept-charset="utf-8">
                         <label for="user-field">Username:</label>
-                        <input id="user-field" class="block" type="text" name="usernam" pattern=".{3,25}" required="required" />
-                        <label for="email-field">E-Mail address:</label>
+                        <input id="user-field" class="block" type="text" name="username" pattern=".{3,25}" required="required" />
+                        <label for="email-field">Email address:</label>
                         <input id="email-field" class="block" type="email" name="email" required="required" />
                         <label for="password-field">Password:</label>
                         <input id="password-field" class="block" type="password" name="password" required="required" />
                         <label for="confirmation-field">Confirm password:</label>
                         <input id="confirmation-field" class="block" type="password" name="confirmation" required="required" />
                         <label for="name-field">Real name (optional):</label>
-                        <input id="name-field" class="block" type="text" name="name" pattern=".{3,}" />
+                        <input id="name-field" class="block" type="text" name="name" pattern=".{2,}" />
                         <label for="address-field">Address (optional):</label>
                         <textarea id="address-field" class="block" name="address" rows="4" cols="30"></textarea>
                         <label for="phone-field">Phone (optional):</label>
                         <input id="phone-field" class="block" type="text" name="phone" pattern=".{3,}" />
                         <label for="captcha-field">Prove that you are human:</label>
                         <img class="block" src="platform/php/captcha.php?name=register&width=220&height=80" width="220" height="80" alt="Captcha image" />
-                        <input id="captcha-field" class="block" type="text" name="captcha" required="required" />
+                        <input id="captcha-field" class="block" type="text" name="captcha" pattern="[a-zA-Z0-9]{3,10}" required="required" />
                         <input type="submit" value="Register" />
                     </form>
                     <p><a href="recover">Forgot password...</a> | <a href="register">No Account? Register!</a></p>

@@ -49,10 +49,90 @@
         <script type="text/javascript">
             $(document).ready(function() {
                 
+                // Object representing data from db
+                var originalData = {
+                    emailCheckbox: $('#email-checkbox').is(':checked'),
+                    emailField: $('#email-field').val(),
+                    nameField: $('#name-field').val(),
+                    addressField: $('#address-field').html(),
+                    phoneField: $('#phone-field').val()
+                };
+                
+                // Form submit function
                 var submitSettings = function(e) {
                     
                     $('#response').removeClass('red green');
-                    alert('save');
+                    
+                    var postData = { task: 'settings' };
+                    
+                    // Gather data
+                    postData.publicEmail = $('#email-checkbox').is(':checked') ? 1 : 0;
+                    
+                    if ($('#email-field').val().length > 0)
+                        postData.email = $('#email-field').val();
+                    
+                    if ($('#password-field').val().length > 0)
+                        postData.newPassword = $('#password-field').val();
+                    
+                    if ($('#confirmation-field').val().length > 0)
+                        postData.confirmPassword = $('#confirmation-field').val();
+                    
+                    // Personal data
+                    postData.name = $('#name-field').val();
+                    postData.address = $('#address-field').html();
+                    postData.phone = $('#phone-field').val();
+                    
+                    if ($('#old-password-field').val().length > 0)
+                        postData.password = $('#old-password-field').val();
+                    
+                    // Start ajax post request
+                    $.post('user-data', postData, function(response) {
+                        
+                        switch (response.error) {
+                            
+                            case 'login':
+                            case 'notask':
+                                window.location.replace('index');
+                                break;
+                            
+                            case 'password':
+                                $('#response').addClass('red').html('The entered password is not correct!');
+                                break;
+                            
+                            case 'email':
+                                $('#response').addClass('red').html('Invalid email address!');
+                                $('#email-field').val(originalData.emailField);
+                                break;
+                            
+                            case 'confirmation':
+                                $('#response').addClass('red').html('Re-entered password is not correct!');
+                                break;
+                            
+                            case 'sendVerification':
+                                $('#response').addClass('red').html('Could not send verification email!');
+                                $('#email-field').val(originalData.emailField);
+                                break;
+                            
+                            default:
+                                $('#response').addClass('green').html('Changes successfully saved!');
+                                
+                                // Update original data
+                                originalData.emailCheckbox = $('#email-checkbox').is(':checked');
+                                originalData.emailField = $('#email-field').val();
+                                originalData.nameField = $('#name-field').val();
+                                originalData.addressField = $('#address-field').html();
+                                originalData.phoneField = $('#phone-field').val();
+                                break;
+                            
+                        }
+                        
+                        // Clear password fields
+                        $('#old-password-field').val('');
+                        $('#password-field').val('');
+                        $('#confirmation-field').val('');
+                        
+                    }, 'json');
+                    
                     e.preventDefault();
                     
                 };
@@ -79,11 +159,20 @@
             
             <!-- main section -->
             <section class="background2">
-                <p>This is a text....</p>
+                <p>You are logged in</p>
+                <div>
+                    <p style="font-weight: bold;">Logout</p>
+                    <form action="login" method="post" accept-charset="utf-8">
+                        <input type="submit" value="Logout" />
+                    </form>
+                </div>
+                <br />
                 <p id="response"></p>
                 <div>
                     <p style="font-weight: bold;">Profile settings:</p>
                     <form id="settings-form" accept-charset="utf-8">
+                        <input id="email-checkbox" type="checkbox" $-publicEmail-$/>
+                        <label for="email-checkbox">Public e-mail address:</label><br />
                         <label for="email-field">Change e-mail address:</label>
                         <input id="email-field" class="block" type="email" value="$-email-$" />
                         <label for="password-field">Change password:</label>
@@ -91,14 +180,14 @@
                         <label for="confirmation-field">Confirm password:</label>
                         <input id="confirmation-field" class="block" type="password" />
                         <label for="name-field">Real name:</label>
-                        <input id="name-field" class="block" type="text" name="name" pattern=".{3,}" value="$-name-$" />
+                        <input id="name-field" class="block" type="text" value="$-name-$" />
                         <label for="address-field">Address:</label>
-                        <textarea id="address-field" class="block" name="address" rows="4" cols="30">$-address-$</textarea>
+                        <textarea id="address-field" class="block" rows="4" cols="30">$-address-$</textarea>
                         <label for="phone-field">Phone:</label>
-                        <input id="phone-field" class="block" type="text" name="phone" pattern=".{3,}" value="$-phone-$" />
+                        <input id="phone-field" class="block" type="text" pattern=".{3,}" value="$-phone-$" />
                         <br /><br />
                         <label for="old-password-field">Enter current password to make changes:</label>
-                        <input id="old-password-field" class="block" type="password" name="password" required="required" />
+                        <input id="old-password-field" class="block" type="password" required="required" />
                         <input type="submit" value="Save" />
                     </form>
                 </div>
