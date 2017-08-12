@@ -24,6 +24,9 @@ use SaveYourLanguage\Database\DatabaseController;
 use SaveYourLanguage\Login\Crypt;
 use SaveYourLanguage\Config;
 
+// Load response HTML content
+$content = file_get_contents('../../verification.html');
+
 // Check if parameters passed
 if (isset($_GET['code']) && isset($_GET['email'])) {
     
@@ -56,13 +59,16 @@ if (isset($_GET['code']) && isset($_GET['email'])) {
                     'verified' => 1                 // Verify user
                 ), array('id' => $row['id']));
                 
-                // Load succes page
-                echo 'success';
+                // Add verification error and success messages in content
+                $content = str_replace('$-error-$', '', $content);
+                $content = str_replace('$-success-$', 'Your e-mail address has been verified successfully!', $content);
                 
             } else {
                 
                 // The verification code is not correct
-                echo 'error: code';
+                // Add verification error and success messages in content
+                $content = str_replace('$-error-$', 'This verification code is not correct!', $content);
+                $content = str_replace('$-success-$', '', $content);
                 
             }
             
@@ -70,22 +76,30 @@ if (isset($_GET['code']) && isset($_GET['email'])) {
             
             // Internal error -> this is not a email verification string
             // This could be a password recovery attempt
-            echo 'error: db string';
+            // Add verification error and success messages in content
+            $content = str_replace('$-error-$', 'No corresponding e-mail address found...', $content);
+            $content = str_replace('$-success-$', '', $content);
             
         }
         
     } else {
         
         // This email does not exist in db
-        echo 'error: email';
+        // Add verification error and success messages in content
+        $content = str_replace('$-error-$', 'No corresponding e-mail address found...', $content);
+        $content = str_replace('$-success-$', '', $content);
         
     }
     
+    DatabaseController::disconnect($link);
+    
 } else {
     
-    echo 'error: no email';
+    // Add verification error and success messages in content
+    $content = str_replace('$-error-$', 'This URL is not complete!', $content);
+    $content = str_replace('$-success-$', '', $content);
     
 }
 
-DatabaseController::disconnect($link);
+echo $content;
 exit();
