@@ -46,6 +46,7 @@ $dc->insertRow('transkriptions',array(
     'status' => 'unsolved'
 ));
 echo 'inserted';
+
 //disconnect
 DatabaseController::disconnect($link);
 unset($link);
