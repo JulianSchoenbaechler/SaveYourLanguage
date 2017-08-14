@@ -168,4 +168,153 @@ class Statistics
 		
 		return $averagevalue;
 	}
+	
+	    /**
+     * a function that returns an array:
+     *
+     * [0] = count of all transkriptions
+     * [1] = count of transkriptions during $timeperiod
+     * [2] = boolean (0=false,1=true). True = user is more active than during the last time period, false = less active
+     * [3] = the accuracy of the player's transkriptions during the $timeperiod.
+     * [4] = boolean (0=less accurate, 1=more accurate than last period)
+     * [5] = number of zodiacs during $timeperiod
+     *
+     * important: if you want to update the playerinfo at the end of a timeperiod, set $setInfo = true
+     */
+    public function getPlayerInfo($playerID,$tableName,$timeperiod = 30,$setInfo = false)
+    {
+        $link = DatabaseController::connect();
+        $dc = new DatabaseController($link);
+        
+        //infoarray->contains the return values (all integer)
+        $info = array();
+        
+        //absolute transkriptions count:
+        $allrows = $dc->getRows($tableName,array(
+            'playerid' => $playerID
+        ));
+        $info[0] = count($allrows);
+        
+        $dataRows = array();        
+        $dataRows = $dc->getRowsOrderedBy($tableName, array(
+            'playerid' => $playerID,
+        ),array(),
+            'timestamp',
+            false,
+            $timeperiod
+        );
+        
+        //$stats[0] = this timeperiod stats, stats[1] = from last time period
+        $stats = $dc->getRowsOrderedBy('playerstats',array(
+            'playerid' => $playerID
+        ),array(),
+            'timestamp',
+            false,
+            2
+        );
+        
+        //transkription count during timeperiod
+        $info[1] = count($dataRows);
+        if($stats[1]['count'] > $info[1]){
+            
+            //user is less active than during last timeperiod
+            $info[2] = 0;
+            
+        }else{
+            
+            //user is more active than during last timeperiod
+            $info[2] = 1;
+            
+        }
+        
+        //player accuracy during this timeperiod
+        $statisticclass = new Statistics();
+        $info[3] = $statisticclass->getPlayerAccuracy($playerID,$tableName,$timeperiod);
+        
+        if($info[3] > $stats[1]['accuracy']){
+            
+            //player is more accurate than during last timeperiod, 1 = true
+            $info[4] = 1;
+            
+        }else{
+            
+            //player is less accurate than during last timeperiod, 0 = false
+            $info[4] = 0;
+            
+        }
+        
+        //zodiaccount. $stats[0] are the stats of this timeperiod
+        $info[5] = $stats[0]['zodiacs'];
+        
+        //if setinfo = true, update the playerstats in the playerstats table with the gathered info.
+        if($setInfo == true){
+            
+            //the needed stats are inside the info-array. but the comparison infos don't get saved, thats why we only need info 1, 3 and 5.
+            $statisticclass->updatePlayerStats($playerID, array(
+                $info[1],
+                $info[3],
+                $info[5]
+            ),
+                $stats[0]['timestamp']                                   
+            );
+            
+        }
+        
+        // Close database
+        DatabaseController::disconnect($link);
+        unset($link);
+        
+        //finally returning the info
+        return $info;
+    }
+    
+    /**
+     *updates the playerstats in the playerstats table
+     *
+     *$info should be an array with 3 entries:
+     *[0] = transkription count (of this timeperiod)
+     *[1] = accuracy (of this timeperiod)
+     *[2] = zodiac count (of this time period)
+     */
+    public function updatePlayerStats($playerID, $info, $timestamp)
+    {
+        $link = DatabaseController::connect();
+        $dc = new DatabaseController($link);
+        
+        $dc->updateRow('playerstats',array(
+            'count' => $info[0],
+            'accuracy' => $info[1],
+            'zodiacs' => $info[2]
+        ),array(
+            'playerid' => $playerID,
+            'timestamp' => $timestamp
+        ));
+        
+        // Close database
+        DatabaseController::disconnect($link);
+        unset($link);
+    }
+    
+    /**
+     *adds the playerstats table a new row with a new timestamp
+     */
+    public function insertPlayerStats($playerID)
+    {
+        $link = DatabaseController::connect();
+        $dc = new DatabaseController($link);
+        
+        //get the timestamp
+        $timeStamp = time();
+        
+        //we insert a new row with id and timestamp. the rest of the stats is still empty.
+        $dc->insertRow('playerstats',array(
+            'playerid' => $playerID,
+            'timestamp' => $timeStamp
+        ));
+        
+        // Close database
+        DatabaseController::disconnect($link);
+        unset($link);        
+    }
+
 }
