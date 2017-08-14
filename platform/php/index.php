@@ -76,7 +76,7 @@ if ($userId = Login::isUserLoggedIn()) {
         switch (trim($_GET['success'])) {
             
             case 'register':
-                $success = 'Your user account has been setup successfully! You will receive a verification email containing a hyperlink. ';
+                $success = 'Your user account has been set up successfully! You will receive a verification email containing a hyperlink. ';
                 $success .= 'Please click this verification link to complete the registration process.';
                 break;
             
