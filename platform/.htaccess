@@ -1,0 +1,36 @@
+# Hoststar specific
+#Action php /cgi-php7/php
+#AddHandler php7 .php
+
+#AddType application/x-httpd-php .html .htm
+
+# MP3 audio
+AddType audio/mpeg3 .mp3
+AddType audio/mp3 .mp3
+AddType audio/x-mpeg3 .mp3
+
+<FilesMatch "\.(ico|pdf|jpg|jpeg|png|gif)$">
+<IfModule mod_headers.c>
+Header set Cache-Control "max-age=604800, public"
+Header set Strict-Transport-Security "max-age=31536000" env=HTTPS
+</IfModule>
+</FilesMatch>
+
+DefaultType application/x-httpd-php
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+RewriteEngine on
+
+#RewriteCond %{HTTPS} !=on
+#RewriteRule .* https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^(.*)/$ $1 [L,R=302] # for production use 301 redirect
+
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !\.php$
+RewriteCond %{REQUEST_URI} [^/]$
+RewriteRule ^(.*)$ php/$1.php [L,QSA]
+</IfModule>
