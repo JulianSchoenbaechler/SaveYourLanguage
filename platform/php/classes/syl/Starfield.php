@@ -36,7 +36,7 @@ class Starfield
     }
     
     // Generate completely new starfield / delete old one and all its data
-    public static function generateNew($canvasX, $canvasY, $numberOfStars = 200)
+    public static function generateNew($canvasX, $canvasY, $numberOfStars = 256)
     {
         // Check arguments
         if (!is_int($canvasX)) {
@@ -56,14 +56,48 @@ class Starfield
         self::$dc->emptyTable('stars');
         self::$dc->emptyTable('userStars');
         
-        // Add new stars
-        for ($i = 0; $i < $numberOfStars; $i++) {
+        // Generate stars not quite random but in cells
+        // This prevents stars from overlapping (kind of...)
+        $offset = 5;
+        $cellsPerSide = sqrt($numberOfStars);
+        $cellSizeX = $canvasX / $cellsPerSide;
+        $cellSizeY = $canvasY / $cellsPerSide;
+        $stars = array();
+        
+        // Generate field according to cells
+        for ($i = 0; $i < floor($cellsPerSide); $i++) {
             
-            self::$dc->insertRow('stars', array(
+            for ($j = 0; $j < floor($cellsPerSide); $j++) {
+                
+                $stars[] = array(
+                    'x' => mt_rand($i * $cellSizeX + $offset, ($i + 1) * $cellSizeX - $offset),
+                    'y' => mt_rand($j * $cellSizeY + $offset, ($j + 1) * $cellSizeY - $offset),
+                    'level' => 0
+                );
+                
+            }
+            
+        }
+        
+        // Stars left that could not be placed into cells?
+        // Number of stars is not a square number
+        for ($i = count($stars); $i < $numberOfStars; $i++) {
+            
+            // Fill up random
+            $stars[] = array(
                 'x' => mt_rand(0, $canvasX),
                 'y' => mt_rand(0, $canvasY),
                 'level' => 0
-            ));
+            );
+            
+        }
+        
+        shuffle($stars);
+        
+        // Add new stars
+        for ($i = 0; $i < $numberOfStars; $i++) {
+            
+            self::$dc->insertRow('stars', $stars[$i]);
             
         }
     }
