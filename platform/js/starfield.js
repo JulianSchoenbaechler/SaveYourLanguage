@@ -113,6 +113,13 @@ Starfield.prototype.resetStarfield = function() {
             // Click event handler
             newStar.data('i', i + 1).click(function() { alert('Load transcription... | Star id: ' + this.data('i').toString()); });
             
+            // Hover event handler(s)
+            newStar.hover(function() {
+                this.attr({ cursor: 'pointer' });
+            }, function() {
+                this.attr({ cursor: 'default' });
+            });
+            
             // Add new star to set
             instance.starSet.push(newStar);
             
