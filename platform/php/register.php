@@ -1,6 +1,6 @@
 <?php
 /**
- * Save Your Language user settings
+ * Save Your Language register page
  *
  * Sequential - Register new user
  * Accepted parameters:

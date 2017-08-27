@@ -1,6 +1,6 @@
 <?php
 /**
- * Save Your Language user settings
+ * Save Your Language login
  *
  * Sequential - Login and logout
  * Accepted parameters:

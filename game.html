@@ -43,6 +43,36 @@
             .background5 {
                 background-color: #CCE5CC;
             }
+            .clickable {
+                cursor: pointer;
+            }
+            #starfield-wrapper {
+                position: relative;
+                display: block;
+                width: 100%;
+            }
+            #starfield-wrapper:after {
+                display: block;
+                content: '';
+                padding-top: 56.25%;
+            }
+            #starfield-wrapper .full-size {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                right: 0;
+                left: 0;
+            }
+            #loading {
+                color: white;
+                background-color: rgba(20, 20, 20, 0.9);
+                z-index: 2;
+            }
+            #starfield {
+                color: white;
+                background-color: #12192B;
+                z-index: 1;
+            }
         </style>
     </head>
 
@@ -68,13 +98,22 @@
                         <input type="submit" value="Logout" />
                     </form>
                 </div>
-                <br />
-                <div>
-                    <p style="font-weight: bold;">Starfield</p>
-                    $-content-$
-                </div>
             </section>
             
+            <section class="background5">
+                <div>
+                    <p style="font-weight: bold;">Player list</p>
+                    <div id="player-list"></div>
+                </div>
+                <div>
+                    <p style="font-weight: bold;">Starfield</p>
+                    <div id="starfield-wrapper">
+                        <div id="loading" class="full-size"></div>
+                        <div id="starfield" class="full-size"></div>
+                    </div>
+                </div>
+            </section>
+                
             <nav class="background3">
                 <p>Navigation</p>
                 <ul>

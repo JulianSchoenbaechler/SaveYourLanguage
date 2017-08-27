@@ -1,6 +1,6 @@
 <?php
 /**
- * Save Your Language user settings
+ * Save Your Language index page
  *
  * Sequential - Loads index page according on users login status
  * Accepted parameters:
