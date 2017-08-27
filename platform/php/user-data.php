@@ -2,10 +2,10 @@
 /**
  * Save Your Language user settings
  *
- * Sequential - Supposed to be called by a AJAX or XMLHttpRequest.
+ * Sequential - Supposed to be called by an AJAX or XMLHttpRequest.
  * Returns success or error status for every action in JSON format.
  * Accepted parameters:
- * POST - task              = Data interpretation
+ * POST - task              = data interpretation
  * POST - publicEmail       = change user settings
  * POST - email             = change user settings
  * POST - name              = change user settings
