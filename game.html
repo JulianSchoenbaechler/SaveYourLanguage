@@ -74,6 +74,17 @@
                 z-index: 1;
             }
         </style>
+        
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+        <script type="text/javascript" src="platform/js/raphael.min.js"></script>
+        <script type="text/javascript" src="platform/js/starfield.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                
+                var starfield = new Starfield('starfield', 'loading');
+                
+            });
+        </script>
     </head>
 
     <body>
