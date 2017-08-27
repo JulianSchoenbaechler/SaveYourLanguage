@@ -48,10 +48,10 @@ if ($userId = Login::isUserLoggedIn()) {
             
             // Get all possible post data
             $publicEmail = isset($_POST['publicEmail']) ? max(0, min(1, (int)$_POST['publicEmail'])) : null;
-            $email = isset($_POST['email']) ? filter_var(strtolower(trim($_POST['email'])), FILTER_SANITIZE_EMAIL) : null;
-            $name = isset($_POST['name']) ? trim($_POST['name']) : null;
-            $address = isset($_POST['address']) ? trim($_POST['address']) : null;
-            $phone = isset($_POST['phone']) ? trim($_POST['phone']) : null;
+            $email = isset($_POST['email']) ? filter_var(strtolower(htmlspecialchars_decode(trim($_POST['email']))), FILTER_SANITIZE_EMAIL) : null;
+            $name = isset($_POST['name']) ? htmlspecialchars_decode(trim($_POST['name'])) : null;
+            $address = isset($_POST['address']) ? htmlspecialchars_decode(trim($_POST['address'])) : null;
+            $phone = isset($_POST['phone']) ? htmlspecialchars_decode(trim($_POST['phone'])) : null;
             $password = isset($_POST['password']) ? trim($_POST['password']) : null;
             $newPassword = isset($_POST['newPassword']) ? trim($_POST['newPassword']) : null;
             $confirmPassword = isset($_POST['confirmPassword']) ? trim($_POST['confirmPassword']) : null;
@@ -99,10 +99,12 @@ if ($userId = Login::isUserLoggedIn()) {
                         $mail->setSubject('SaveYourLanguage.com - Neue E-Mail Adresse');
                         $mail->setContent($msg);
                         
-                        if ($mail->send())
-                            return true;
-                        else
-                            return false;
+                        if (!$mail->send()) {
+                            
+                            echo json_encode(array('error' => 'sendVerification'));
+                            exit();
+                            
+                        }
                         
                     } else {
                         
@@ -123,13 +125,13 @@ if ($userId = Login::isUserLoggedIn()) {
                     $updateData['public_email'] = $publicEmail;
                 
                 if ($name !== null)
-                    $updateData['name'] = strlen($name) > 0 ? Crypt::encryptAES256($name, getenv('USER_CRYPTO_KEY', true)) : 'none';
+                    $updateData['name'] = strlen($name) > 0 ? Crypt::encryptAES256(htmlspecialchars($name), getenv('USER_CRYPTO_KEY', true)) : 'none';
                 
                 if ($address !== null)
-                    $updateData['address'] = strlen($address) > 0 ? Crypt::encryptAES256($address, getenv('USER_CRYPTO_KEY', true)) : 'none';
+                    $updateData['address'] = strlen($address) > 0 ? Crypt::encryptAES256(htmlspecialchars($address), getenv('USER_CRYPTO_KEY', true)) : 'none';
                 
                 if ($phone !== null)
-                    $updateData['phone'] = strlen($phone) > 0 ? Crypt::encryptAES256($phone, getenv('USER_CRYPTO_KEY', true)) : 'none';
+                    $updateData['phone'] = strlen($phone) > 0 ? Crypt::encryptAES256(htmlspecialchars($phone), getenv('USER_CRYPTO_KEY', true)) : 'none';
                 
                 // Update password
                 if ($newPassword !== null) {

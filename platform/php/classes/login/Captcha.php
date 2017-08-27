@@ -38,7 +38,7 @@ class Captcha
     // Verify a previously generated captcha code
     public function verifyCaptcha($captchaCode)
     {
-        $captchaCode = trim($captchaCode);
+        $captchaCode = strtoupper(trim($captchaCode));
         
         // Captcha does not exist?
         if ($this->currentCaptcha === null)
@@ -85,8 +85,8 @@ class Captcha
         $this->session->startSecureSession();
         
         // Write session
-        $_SESSION['syl']['captcha_'.$this->name.'_expire'] = time() + 200;
-        $_SESSION['syl']['captcha_'.$this->name] = $captchaCode;
+        $_SESSION['syl']['captcha_'.$this->name.'_expire'] = time() + 600;
+        $_SESSION['syl']['captcha_'.$this->name] = password_hash($captchaCode, PASSWORD_BCRYPT);
         
         // Close session
         $this->session->closeSession();
