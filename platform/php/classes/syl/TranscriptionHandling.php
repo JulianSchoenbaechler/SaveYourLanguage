@@ -100,13 +100,14 @@ class TranscriptionHandling
             'snippedId' => $snippedId,
             'usable' => 1));
 
-        $tCount = count($transcriptions);
-        $maxL = 0;
-        $lTotal = array();
-        $validity = array();
-        $averageThreshold = 0;
-        $validCount = 0;
-        $i = 0;
+        $tCount = count($transcriptions);       // Number of transcriptions
+        $maxL = 0;                              // Length of the longest transcription for this snippet
+        $lTotal = array();                      // Stores the sums of all Levenshtein comparisations for a transcription
+                                                // Added: subtract the amount of equal characters (from comparisation)
+        $validity = array();                    // The calculated validity in percent for every transcription
+        $averageThreshold = 0;                  // The average of the validity calculations -> serves as threshold
+        $validCount = 0;                        // The amount of transcriptions considered 'valid'
+        $i = 0;                                 // Counting variable
 
         // Iterate through all transcriptions
         foreach ($transcriptions as $playerTranscription) {
@@ -173,7 +174,16 @@ class TranscriptionHandling
 
             // Snippet is done!
             $this->dc->updateRow('snippets', array(
+                'count' => $tCount,
                 'done' => 1
+            ), array(
+                'id' => $snippedId
+            ));
+
+        } else {
+
+            $this->dc->updateRow('snippets', array(
+                'count' => $tCount
             ), array(
                 'id' => $snippedId
             ));
