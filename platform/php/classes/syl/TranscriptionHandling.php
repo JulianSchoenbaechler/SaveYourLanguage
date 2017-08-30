@@ -34,13 +34,13 @@ class TranscriptionHandling
     }
 
     // Add a new transcription
-    public function addTranscription($transcription, $snippedId, $userId)
+    public function addTranscription($transcription, $snippetId, $userId)
     {
         // Check arguments
         if (!is_string($transcription)) {
 			trigger_error("[TranscriptionHandling] 'addTranscription' expected Argument 0 to be String", E_USER_WARNING);
 		}
-        if (!is_int($snippedId)) {
+        if (!is_int($snippetId)) {
 			trigger_error("[TranscriptionHandling] 'addTranscription' expected Argument 1 to be Integer", E_USER_WARNING);
 		}
         if (!is_int($userId)) {
@@ -48,7 +48,7 @@ class TranscriptionHandling
 		}
 
         $row = $this->dc->getRow('transcriptions', array(
-            'snippedId' => $snippedId,
+            'snippetId' => $snippetId,
             'userId' => $userId
         ));
 
@@ -56,7 +56,7 @@ class TranscriptionHandling
         if ($row === null) {
 
             $this->dc->insertRow('transcriptions', array(
-                'snippedId' => $snippedId,
+                'snippetId' => $snippetId,
                 'userId' => $userId,
                 'transcription' => $transcription,
                 'evaluation' => 0,
@@ -104,10 +104,10 @@ class TranscriptionHandling
 
     // Mark a transcription as unusable
     // This transcription will not be considered for validity and statistic calculations anymore
-    public function markAsUnusable($snippedId, $userId)
+    public function markAsUnusable($snippetId, $userId)
     {
         // Check arguments
-        if (!is_int($snippedId)) {
+        if (!is_int($snippetId)) {
 			trigger_error("[TranscriptionHandling] 'markAsUnusable' expected Argument 0 to be Integer", E_USER_WARNING);
 		}
         if (!is_int($userId)) {
