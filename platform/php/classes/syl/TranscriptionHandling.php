@@ -81,23 +81,19 @@ class TranscriptionHandling
 			trigger_error("[TranscriptionHandling] 'getSnippet' expected Argument 0 to be Integer", E_USER_WARNING);
 		}
 
+        $query = "SELECT * FROM `snippets` WHERE `done`=? AND `id`
+        NOT IN (SELECT `snippetId` FROM `transcriptions` WHERE `userId`=? AND `usable`=?)
+        ORDER BY `count` DESC LIMIT 1";
+
         // Get a pool of snippets which haven't been solved yet
-        $snippets = $this->dc->getRowsOrderedBy('snippets', array(
-            'done' => 0
-        ), array(), 'count', false, 200);
+        $snippets = $this->dc->executeCustomQuery($query, array(
+            0,          // Not done
+            $userId,    // User id
+            1           // Usable data
+        ));
 
-        // Iterate through loaded snippets
-        for ($i = 0; $i < count($snippets); $i++) {
-
-            $row = $this->dc->getRow('transcriptions', array(
-                'snippetId' => (int)$snippets[$i]['id'],
-                'userId' => $userId
-            ));
-
-            if ($row === null)
-                return $snippets[$i];
-
-        }
+        if ($snippets !== null)
+            return $snippets[0];
 
         return null;
     }
