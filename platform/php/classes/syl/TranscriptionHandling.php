@@ -67,6 +67,41 @@ class TranscriptionHandling
         }
     }
 
+    /*
+     * Get a new snippet for a user
+     * Returns as snippet array or null if no suitable snippet was found:
+     * 'id' => snippet id
+     * 'path' => path to sound file
+     * 'count' => number of transcriptions for this snippet
+     * 'done' => if the snippet is done (enough valid transcriptions)
+     */
+    public function getSnippet($userId)
+    {
+        if (!is_int($userId)) {
+			trigger_error("[TranscriptionHandling] 'getSnippet' expected Argument 0 to be Integer", E_USER_WARNING);
+		}
+
+        // Get a pool of snippets which haven't been solved yet
+        $snippets = $this->dc->getRowsOrderedBy('snippets', array(
+            'done' => 0
+        ), array(), 'count', false, 200);
+
+        // Iterate through loaded snippets
+        for ($i = 0; $i < count($snippets); $i++) {
+
+            $row = $this->dc->getRow('transcriptions', array(
+                'snippetId' => (int)$snippets[$i]['id'],
+                'userId' => $userId
+            ));
+
+            if ($row === null)
+                return $snippets[$i];
+
+        }
+
+        return null;
+    }
+
     // Mark a transcription as unusable
     // This transcription will not be considered for validity and statistic calculations anymore
     public function markAsUnusable($snippedId, $userId)
