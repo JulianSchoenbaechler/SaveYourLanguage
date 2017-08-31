@@ -33,6 +33,9 @@ Starfield.prototype.starImages = [
     'platform/img/star-big.png'
 ];
 
+// Raphael canvas
+Starfield.prototype.paper = undefined;
+
 // Raphael sets
 Starfield.prototype.starSet = undefined;
 Starfield.prototype.pathSet = undefined;
@@ -52,10 +55,70 @@ Starfield.STAR_SIZE = 16;
  * -------------------------------------------------------------------------
  */
 
+Starfield.prototype.loadUserStars = function(userId, callback) {
+
+    if (typeof userId != 'number')
+        return;
+
+    var instance = this;
+
+    // Container variable holding coordinates
+    var tempCoordinates;
+
+    $.post('starfield', { task: 'user', user: userId }, function(data) {
+
+        if (typeof data.error != 'undefined') {
+            // Error occured
+            return;
+        }
+
+        // Remove all elements from the path set and clear those
+        if (typeof instance.pathSet != 'undefined') {
+            instance.pathSet.remove();
+            instance.pathSet.clear();
+        } else {
+            instance.pathSet = instance.paper.set();
+        }
+
+        // SVG path string
+        var pathString;
+
+        // Iterate through path coordinates
+        for (var i = 0; i < data.path.length; i++) {
+
+            // Get coordinates from percentages
+            tempCoordinates = instance.percentToPixel(data.path[i].x, data.path[i].y);
+
+            // Firs path point?
+            if (i === 0)
+                pathString = 'M' + tempCoordinates.x.toString() + ',' + tempCoordinates.y.toString();
+            else
+                pathString += 'L' + tempCoordinates.x.toString() + ',' + tempCoordinates.y.toString();
+
+        }
+
+        // Draw path onto canvas
+        var path = instance.paper.path(pathString);
+        path.attr({
+            'stroke': '#D8F1FF',
+            'stroke-width': 3
+        });
+
+        // Add path to set
+        instance.pathSet.push(path);
+
+        // Fire callback if one is defined
+        if (callback)
+            callback();
+
+    }, 'json');
+
+};
+
 /**
  * Clears and reloads the starfield.
  */
-Starfield.prototype.resetStarfield = function() {
+Starfield.prototype.resetStarfield = function(callback) {
 
     var instance = this;
 
@@ -141,9 +204,9 @@ Starfield.prototype.resetStarfield = function() {
 
         }
 
-        // Disable loading screen
-        if (instance.loadingFlag)
-            instance.$loading.fadeOut(200);
+        // Fire callback if one is defined
+        if (callback)
+            callback();
 
     }, 'json');
 
@@ -199,10 +262,22 @@ Starfield.prototype.init = function(starfieldContainer, loadingContainer) {
     instance.paper.setSize('100%', '100%');
 
     // Proxy all object functions
+    $.proxy(instance.loadUserStars, instance);
     $.proxy(instance.resetStarfield, instance);
     $.proxy(instance.pixelToPrecent, instance);
 
     // Load starfield
-    instance.resetStarfield();
+    instance.resetStarfield(function() {
+
+        // Load this users star sequence
+        instance.loadUserStars(0, function() {
+
+            // Hide loading container
+            if (instance.loadingFlag)
+                instance.$loading.fadeOut(200);
+
+        });
+
+    });
 
 };

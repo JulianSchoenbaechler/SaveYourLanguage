@@ -33,7 +33,7 @@ if ($userId = Login::isUserLoggedIn()) {
 
     switch ($task) {
 
-        // Change user settings
+        // Load stars
         case 'load':
 
             // Load stars
@@ -63,7 +63,46 @@ if ($userId = Login::isUserLoggedIn()) {
 
             break;
 
-        // Save snippet in session -> for transcribing later
+        // User star sequence
+        case 'user':
+
+            $requestedUser = isset($_POST['user']) ? (int)trim($_POST['user']) : -1;
+            if ($requestedUser == 0) $requestedUser = $userId;
+
+            // Valid user id?
+            if ($requestedUser > 0) {
+
+                $stars = array();
+
+                // Load stars
+                $rows = $dc->getRowsOrderedBy('userStars', array('userId' => $requestedUser), array(), 'sequence');
+
+                // Generate path array from user stars
+                // Coordinates are divided by 10
+                for ($i = 0; $i < count($rows); $i++) {
+
+                    $star = $dc->getRow('stars', array('id' => $rows[$i]['starId']));
+                    $stars[$i] = array('x' => $star['x'] / 10, 'y' => $star['y'] / 10);
+
+                }
+
+                // Response
+                echo json_encode(array('path' => $stars));
+
+            } else {
+
+                // Response
+                echo json_encode(array('error' => 'nouser'));
+
+            }
+
+            // Close db
+            DatabaseController::disconnect(Login::$dbConnection);
+            exit();
+
+            break;
+
+        // Save star in session -> for transcribing later
         case 'transcribe':
 
             $starId = isset($_POST['star']) ? (int)trim($_POST['star']) : -1;

@@ -88,7 +88,7 @@ if ($userId = Login::isUserLoggedIn()) {
                     $row = $dc->getRow('users', array('id' => $userId));
 
                     // Add username in content
-                    $content = str_replace('$-username-$', /*$row['username']*/$_SESSION['syl']['snippet'], $content);
+                    $content = str_replace('$-username-$', $row['username'], $content);
 
                     // Close session
                     $session->closeSession();
