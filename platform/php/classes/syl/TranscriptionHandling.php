@@ -13,8 +13,10 @@ namespace SaveYourLanguage\Transcriptions;
 
 // Include db controller
 require_once dirname(__FILE__).'/../db/DatabaseController.php';
+require_once dirname(__FILE__).'/../Config.php';
 
 use SaveYourLanguage\Database\DatabaseController;
+use SaveYourLanguage\Config;
 
 
 class TranscriptionHandling
@@ -200,8 +202,8 @@ class TranscriptionHandling
         }
 
         // Check if the global threshold of valid transcriptions is reached?
-        // TODO: replace with config variable
-        if ($validCount >= 5) {
+        // Or maximum of transcriptions is reached...
+        if (($validCount >= CONFIG::SNIPPET_VALID_COUNT) || ($tCount >= Config::MAX_TRANSCRIPTIONS)) {
 
             // Snippet is done!
             $this->dc->updateRow('snippets', array(
