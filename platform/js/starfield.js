@@ -111,7 +111,23 @@ Starfield.prototype.resetStarfield = function() {
                                                Starfield.STAR_SIZE);
 
             // Click event handler
-            newStar.data('i', i + 1).click(function() { alert('Load transcription... | Star id: ' + this.data('i').toString()); });
+            newStar.data('i', i + 1).click(function() {
+
+                // Stage star id for transcription
+                alert('Load transcription... | Star id: ' + this.data('i').toString());
+                $.post('starfield', { task: 'transcribe', star: this.data('i') }, function(data) {
+
+                    if (data.error != 'none') {
+                        // Error occured
+                        return;
+                    }
+
+                    // Redirect
+                    window.location.replace('transcription');
+
+                }, 'json');
+
+            });
 
             // Hover event handler(s)
             newStar.hover(function() {
