@@ -172,7 +172,7 @@ class Starfield
 
     }
 
-    // Kills the star a user has already made where the snipped was not correct
+    // Kills the star a user has already made where the snippet was not correct
     public static function killUserStar($userId, $snippetId)
     {
         // Check arguments

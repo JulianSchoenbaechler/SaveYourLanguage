@@ -114,21 +114,21 @@ class TranscriptionHandling
         $this->dc->updateRow('transcriptions', array(
             'usable' => 0
         ), array(
-            'snippedId' => $snippedId,
+            'snippetId' => $snippetId,
             'userId' => $userId
         ));
     }
 
     // Calculate and store validity of transcriptions specified by its id
-    public function recalculateValidity($snippedId)
+    public function recalculateValidity($snippetId)
     {
-        if (!is_int($snippedId)) {
+        if (!is_int($snippetId)) {
 			trigger_error("[TranscriptionHandling] 'recalculateValidity' expected Argument 0 to be Integer", E_USER_WARNING);
 		}
 
-        // Get every usable transcription for this snipped
+        // Get every usable transcription for this snippet
         $transcriptions = $this->dc->getRows('transcriptions', array(
-            'snippedId' => $snippedId,
+            'snippetId' => $snippetId,
             'usable' => 1));
 
         $tCount = count($transcriptions);       // Number of transcriptions
@@ -182,7 +182,7 @@ class TranscriptionHandling
                 'evaluation' => $validity[$i]
             ), array(
                 'userId' => $transcriptions[$i]['userId'],
-                'snippedId' => $snippedId
+                'snippetId' => $snippetId
             ));
 
         }
@@ -208,7 +208,7 @@ class TranscriptionHandling
                 'count' => $tCount,
                 'done' => 1
             ), array(
-                'id' => $snippedId
+                'id' => $snippetId
             ));
 
         } else {
@@ -216,7 +216,7 @@ class TranscriptionHandling
             $this->dc->updateRow('snippets', array(
                 'count' => $tCount
             ), array(
-                'id' => $snippedId
+                'id' => $snippetId
             ));
 
         }
