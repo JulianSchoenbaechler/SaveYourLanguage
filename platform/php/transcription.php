@@ -46,9 +46,9 @@ if ($userId = Login::isUserLoggedIn()) {
     $snippetId = isset($_SESSION['syl']['snippet']) && ($_SESSION['syl']['snippet'] !== null) ? $_SESSION['syl']['snippet'] : -1;
 
     // Player made a transcription
-    if (($transcription !== null) && ($snippetId >= 0)) {
+    if (($transcription !== null) && (strlen($transcription) > 0) && ($snippetId >= 0)) {
 
-        $th->addTranscription($snippetId, $userId, $transcription);     // Add transcription
+        $th->addTranscription($transcription, $snippetId, $userId);     // Add transcription
         $th->recalculateValidity($snippetId);                           // Recalculcate validity of snippets
         Starfield::addUserToStar($userId, $starId, $snippetId);         // Save user in starfield
 
@@ -75,22 +75,28 @@ if ($userId = Login::isUserLoggedIn()) {
             if ($row === null) {
 
                 // Get a new snippet for this user and save it in session
-                $_SESSION['syl']['snippet'] = (int)$th->getSnippet($userId)['id'];
+                $snippet = $th->getSnippet($userId);
 
-                // Load response HTML content
-                $content = file_get_contents('../../transcription.html');
+                if ($snippet !== null) {
 
-                // Get user data
-                $row = $dc->getRow('users', array('id' => $userId));
+                    $_SESSION['syl']['snippet'] = (int)$th->getSnippet($userId)['id'];
 
-                // Add username in content
-                $content = str_replace('$-username-$', $row['username'], $content);
+                    // Load response HTML content
+                    $content = file_get_contents('../../transcription.html');
 
-                // Close session
-                $session->closeSession();
+                    // Get user data
+                    $row = $dc->getRow('users', array('id' => $userId));
 
-                echo $content;
-                exit();
+                    // Add username in content
+                    $content = str_replace('$-username-$', /*$row['username']*/$_SESSION['syl']['snippet'], $content);
+
+                    // Close session
+                    $session->closeSession();
+
+                    echo $content;
+                    exit();
+
+                }
 
             }
 
