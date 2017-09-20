@@ -103,7 +103,7 @@ class Starfield
     }
 
     // Add a new star to the users sequence
-    public static function addUserToStar($userId, $starId, $snippetId)
+    public static function addUserToStar($userId, $starId, $snippetId, $connected = true)
     {
         // Check arguments
         if (!is_int($userId)) {
@@ -130,7 +130,7 @@ class Starfield
         $sequenceNo = $userStars !== null ? count($userStars) : 0;
 
         // Already transcribed by player itself?
-        $oldStar = false;
+        $oldStar = 0;
 
         // Not the first star?
         if ($sequenceNo > 0) {
@@ -138,18 +138,15 @@ class Starfield
             foreach ($userStars as $star) {
 
                 // Found transcribed
-                if ($star['starId'] == $starId) {
-
-                    $oldStar = true;
-                    break;
-
-                }
+                if ($star['starId'] == $starId)
+                    $oldStar++;
 
             }
 
         }
 
-        if ($oldStar == true)
+        // How many times can a star be transcribed?
+        if ($oldStar >= 2)
             return false;
 
         // Enqueue new star for user
@@ -158,6 +155,7 @@ class Starfield
             'starId' => $starId,
             'snippetId' => $snippetId,
             'sequence' => $sequenceNo,
+            'connected' => $connected ? 1 : 0,
             'active' => 1
         ));
 

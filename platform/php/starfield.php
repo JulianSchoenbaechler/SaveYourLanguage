@@ -82,7 +82,7 @@ if ($userId = Login::isUserLoggedIn()) {
                 for ($i = 0; $i < count($rows); $i++) {
 
                     $star = $dc->getRow('stars', array('id' => $rows[$i]['starId']));
-                    $stars[$i] = array('x' => $star['x'] / 10, 'y' => $star['y'] / 10);
+                    $stars[$i] = array('x' => $star['x'] / 10, 'y' => $star['y'] / 10, 'connected' => $rows[$i]['connected'] ? true : false);
 
                 }
 
