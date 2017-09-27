@@ -102,6 +102,50 @@ if ($userId = Login::isUserLoggedIn()) {
 
             break;
 
+        // Load player list
+        case 'players':
+
+            // Query to gather players list
+            $sql = "SELECT `st`.`userId`, `ut`.`username`
+                    FROM `userStars` AS `st`
+                        INNER JOIN `users` AS `ut`
+                        ON `st`.`userId` = `ut`.`id`
+                    GROUP BY `st`.`userId`
+                    ORDER BY COUNT(`st`.`userId`) DESC";
+            
+            // Load stars
+            $playerList = $dc->executeCustomQuery($sql, array());
+            
+            // Load players that have no transcriptions yet
+            $playerList = array_merge($playerList, $dc->executeCustomQuery(
+                "SELECT `id`, `username`
+                FROM `users`
+                WHERE `id` NOT IN
+                    (SELECT `userId` FROM `userStars`)",
+                array()
+            ));
+            
+            // Replace associative array key to something more readable
+            foreach ($playerList as &$player) {
+                
+                if (isset($player['id'])) {
+                    
+                    $player['userId'] = $player['id'];
+                    unset($player['id']);
+                    
+                }
+                
+            }
+            
+            // Response
+            echo json_encode(array('players' => $playerList));
+            
+            // Close db
+            DatabaseController::disconnect(Login::$dbConnection);
+            exit();
+
+            break;
+
         // Save star in session -> for transcribing later
         case 'transcribe':
 

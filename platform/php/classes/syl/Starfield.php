@@ -13,8 +13,10 @@ namespace SaveYourLanguage\Playfield;
 
 // Include db controller
 require_once dirname(__FILE__).'/../db/DatabaseController.php';
+require_once dirname(__FILE__).'/../Config.php';
 
 use SaveYourLanguage\Database\DatabaseController;
+use SaveYourLanguage\Config;
 
 
 class Starfield
@@ -146,7 +148,7 @@ class Starfield
         }
 
         // How many times can a star be transcribed?
-        if ($oldStar >= 2)
+        if ($oldStar >= Config::MAX_USER_SELECT_STAR)
             return false;
 
         // Enqueue new star for user

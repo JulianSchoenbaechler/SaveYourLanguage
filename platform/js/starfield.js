@@ -15,8 +15,8 @@
  * Gateway object to the Starfield class.
  * @constructor
  */
-function Starfield(starfieldContainer, loadingContainer) {
-    this.init(starfieldContainer, loadingContainer);
+function Starfield(starfieldContainer, playerContainer, loadingContainer) {
+    this.init(starfieldContainer, playerContainer, loadingContainer);
 }
 
 
@@ -55,6 +55,114 @@ Starfield.STAR_SIZE = 16;
  * -------------------------------------------------------------------------
  */
 
+/**
+ * Loading playerlist. Player with most transcriptions made first.
+ */
+Starfield.prototype.loadPlayerList = function() {
+
+    var instance = this;
+    
+    $.post('starfield', { task: 'players' }, function(data) {
+
+        if (typeof data.error != 'undefined') {
+            // Error occured
+            return;
+        }
+        
+        for (var i = 0; i < data.players.length; i++) {
+            
+            $('<div/>', {
+                'class': 'player-entry'
+            })
+            .append(i.toString(10) + '. ' + data.players[i].username)
+            .click((function(index) {
+                return function() {
+                    alert('open profile of player with id: ' + data.players[index].userId);
+                }
+            })(i))
+            .hover((function(index) {
+                return function() {
+                    instance.loadUserStarsStaged(data.players[index].userId);
+                }
+            })(i), (function(index) {
+                return function() {
+                    instance.loadUserStarsStaged(0);
+                }
+            })(i))
+            .appendTo(instance.$players);
+            
+        }
+
+    }, 'json');
+
+}
+
+/**
+ * Staging user identifiers from which stars should be loaded. This function prevents
+ * from interrupting the stars loading process.
+ * @param {Number} userId - User identifier.
+ */
+Starfield.prototype.loadUserStarsStaged = function(userId) {
+    
+    if (typeof userId != 'number')
+        return;
+    
+    var instance = this;
+    
+    instance.stagedUser = userId;
+    
+    if (typeof instance.starsLoaded == 'undefined')
+        instance.starsLoaded = true;
+    
+    if (typeof instance.starsStaged == 'undefined')
+        instance.starsStaged = false;
+    
+    // No user staged yet?
+    if (!instance.starsStaged) {
+        
+        instance.starsStaged = true;
+        
+        setTimeout(function() {
+            
+            // Not currently loading...
+            if (instance.starsLoaded) {
+                
+                instance.starsLoaded = false;
+                
+                // Show loading container
+                if (instance.loadingFlag)
+                    instance.$loading.fadeIn(200);
+                
+                // Load user stars
+                instance.loadUserStars(instance.stagedUser, function() {
+                    
+                    // Hide loading container
+                    if (instance.loadingFlag)
+                        instance.$loading.fadeOut(200);
+                    
+                    instance.starsLoaded = true;
+                    instance.starsStaged = false;
+                    
+                });
+                
+            } else {
+                
+                instance.starsStaged = false;
+                instance.loadUserStarsStaged(instance.stagedUser);
+                
+            }
+            
+        }, 100);
+        
+    }
+    
+}
+
+/**
+ * Loading and render stars and connections from a specific user.
+ * @param {Number} userId - User identifier.
+ * @param {Function} callback - A callback function indicating finished operation.
+ */
 Starfield.prototype.loadUserStars = function(userId, callback) {
 
     if (typeof userId != 'number')
@@ -81,7 +189,7 @@ Starfield.prototype.loadUserStars = function(userId, callback) {
         }
 
         // SVG path string
-        var pathString;
+        var pathString = '';
 
         // Iterate through path coordinates
         for (var i = 0; i < data.path.length; i++) {
@@ -90,8 +198,8 @@ Starfield.prototype.loadUserStars = function(userId, callback) {
             tempCoordinates = instance.percentToPixel(data.path[i].x, data.path[i].y);
 
             // Firs path point?
-            if (i === 0)
-                pathString = 'M' + tempCoordinates.x.toString() + ',' + tempCoordinates.y.toString();
+            if ((i === 0) || !data.path[i].connected)
+                pathString += 'M' + tempCoordinates.x.toString() + ',' + tempCoordinates.y.toString();
             else
                 pathString += 'L' + tempCoordinates.x.toString() + ',' + tempCoordinates.y.toString();
 
@@ -117,6 +225,7 @@ Starfield.prototype.loadUserStars = function(userId, callback) {
 
 /**
  * Clears and reloads the starfield.
+ * @param {Function} callback - A callback function indicating finished operation.
  */
 Starfield.prototype.resetStarfield = function(callback) {
 
@@ -240,17 +349,32 @@ Starfield.prototype.percentToPixel = function(x, y) {
  * Initializes the Starfield object.
  * @private
  */
-Starfield.prototype.init = function(starfieldContainer, loadingContainer) {
+Starfield.prototype.init = function(starfieldContainer, playerContainer, loadingContainer) {
 
     if (!document.getElementById(starfieldContainer))
         throw new Error('[SaveYourLanguage] Starfield: no game container found!');
 
+    if (!document.getElementById(playerContainer))
+        throw new Error('[SaveYourLanguage] Starfield: no player container (list) found!');
+
+    // This instance
     var instance = this;
 
     if (!document.getElementById(loadingContainer))
         instance.loadingFlag = false;
     else
         instance.$loading = $('#' + loadingContainer);
+
+    // Save player list selector
+    instance.$players = $('#' + playerContainer);
+
+    // View selectors
+    instance.$dialog = $('<div/>', {
+        'class': 'full-size',
+        'style': 'display: none; ' +
+                 'background-color: rgba(20, 20, 20, 0.9);' +
+                 'z-index: 1000;'
+    }).appendTo($('#' + starfieldContainer).parent());
 
     instance.initSize = {};
     instance.initSize.width = $('#' + starfieldContainer).width();
@@ -262,6 +386,8 @@ Starfield.prototype.init = function(starfieldContainer, loadingContainer) {
     instance.paper.setSize('100%', '100%');
 
     // Proxy all object functions
+    $.proxy(instance.loadPlayerList, instance);
+    $.proxy(instance.loadUserStarsStaged, instance);
     $.proxy(instance.loadUserStars, instance);
     $.proxy(instance.resetStarfield, instance);
     $.proxy(instance.pixelToPrecent, instance);
@@ -272,6 +398,9 @@ Starfield.prototype.init = function(starfieldContainer, loadingContainer) {
         // Load this users star sequence
         instance.loadUserStars(0, function() {
 
+            // Load player list
+            instance.loadPlayerList();
+            
             // Hide loading container
             if (instance.loadingFlag)
                 instance.$loading.fadeOut(200);

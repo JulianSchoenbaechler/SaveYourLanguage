@@ -19,12 +19,14 @@ require_once 'classes/login/Login.php';
 require_once 'classes/login/Session.php';
 require_once 'classes/syl/TranscriptionHandling.php';
 require_once 'classes/syl/Starfield.php';
+require_once 'classes/Config.php';
 
 use SaveYourLanguage\Database\DatabaseController;
 use SaveYourLanguage\Login\Login;
 use SaveYourLanguage\Login\Session;
 use SaveYourLanguage\Transcriptions\TranscriptionHandling;
 use SaveYourLanguage\Playfield\Starfield;
+use SaveYourLanguage\Config;
 
 // Check if user logged in
 if ($userId = Login::isUserLoggedIn()) {
@@ -69,10 +71,10 @@ if ($userId = Login::isUserLoggedIn()) {
         // Star staged?
         if ($starId >= 0) {
 
-            $row = $dc->getRow('userStars', array('userId' => $userId, 'starId' => $starId));
+            $rows = $dc->getRows('userStars', array('userId' => $userId, 'starId' => $starId));
 
             // Star not already transcribed?
-            if ($row === null) {
+            if (count($rows) <= Config::MAX_USER_SELECT_STAR) {
 
                 // Get a new snippet for this user and save it in session
                 $snippet = $th->getSnippet($userId);
