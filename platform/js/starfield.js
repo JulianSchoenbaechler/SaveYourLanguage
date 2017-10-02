@@ -15,8 +15,8 @@
  * Gateway object to the Starfield class.
  * @constructor
  */
-function Starfield(starfieldContainer, playerContainer, loadingContainer) {
-    this.init(starfieldContainer, playerContainer, loadingContainer);
+function Starfield(starfieldContainer, playerContainer) {
+    this.init(starfieldContainer, playerContainer);
 }
 
 
@@ -267,13 +267,14 @@ Starfield.prototype.resetStarfield = function(callback) {
             tempCoordinates = instance.percentToPixel(data.stars[i].x, data.stars[i].y);
 
             if (data.stars[i].level >= 5)
-                level = 2;
+                level = 4;
 
-            else if (data.stars[i].level >= 3)
-                level = 1;
-
+            else if(data.stars[i].level > 0)
+                level = data.stars[i].level - 1;
+            
             else
                 level = 0;
+                
 
             // Draw new star
             var newStar = instance.paper.image(instance.starImages[level],
@@ -349,7 +350,7 @@ Starfield.prototype.percentToPixel = function(x, y) {
  * Initializes the Starfield object.
  * @private
  */
-Starfield.prototype.init = function(starfieldContainer, playerContainer, loadingContainer) {
+Starfield.prototype.init = function(starfieldContainer, playerContainer) {
 
     if (!document.getElementById(starfieldContainer))
         throw new Error('[SaveYourLanguage] Starfield: no game container found!');
@@ -360,10 +361,14 @@ Starfield.prototype.init = function(starfieldContainer, playerContainer, loading
     // This instance
     var instance = this;
 
-    if (!document.getElementById(loadingContainer))
-        instance.loadingFlag = false;
-    else
-        instance.$loading = $('#' + loadingContainer);
+    // Reference loading container
+    instance.$loading = $('#' + starfieldContainer + ' #loading');
+    
+    // Reference prompt container
+    instance.$prompt = $('#' + starfieldContainer + ' #prompt');
+    
+    // Reference transcription container
+    instance.$transcription = $('#' + starfieldContainer + ' #transcription');
 
     // Save player list selector
     instance.$players = $('#' + playerContainer);
@@ -374,14 +379,14 @@ Starfield.prototype.init = function(starfieldContainer, playerContainer, loading
         'style': 'display: none; ' +
                  'background-color: rgba(20, 20, 20, 0.9);' +
                  'z-index: 1000;'
-    }).appendTo($('#' + starfieldContainer).parent());
+    }).appendTo($('#' + starfieldContainer));
 
     instance.initSize = {};
-    instance.initSize.width = $('#' + starfieldContainer).width();
-    instance.initSize.height = $('#' + starfieldContainer).height();
+    instance.initSize.width = 1200;//$('#' + starfieldContainer + ' #starfield').width();
+    instance.initSize.height = 675;//$('#' + starfieldContainer + ' #starfield').height();
 
     // Setup Raphael
-    instance.paper = new Raphael(starfieldContainer);
+    instance.paper = new Raphael('starfield');
     instance.paper.setViewBox(0, 1, instance.initSize.width, instance.initSize.height, true);
     instance.paper.setSize('100%', '100%');
 

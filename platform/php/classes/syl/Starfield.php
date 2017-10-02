@@ -137,10 +137,10 @@ class Starfield
         // Not the first star?
         if ($sequenceNo > 0) {
 
-            foreach ($userStars as $star) {
+            foreach ($userStars as $ustar) {
 
                 // Found transcribed
-                if ($star['starId'] == $starId)
+                if ($ustar['starId'] == $starId)
                     $oldStar++;
 
             }
