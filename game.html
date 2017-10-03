@@ -63,15 +63,29 @@
                 right: 0;
                 left: 0;
             }
-            #loading {
-                color: white;
-                background-color: rgba(20, 20, 20, 0.9);
-                z-index: 2;
-            }
             #starfield {
                 color: white;
                 background-color: #12192B;
                 z-index: 1;
+            }
+            #prompt,
+            #transcription {
+                display: none;
+                text-align: center;
+            }
+            #prompt p:first-child,
+            #transcription form:first-child {
+                margin-top: 5em;
+            }
+            #transcription-field,
+            #audio-button {
+                display: block;
+                margin: 2em auto;
+            }
+            .overlay {
+                color: white;
+                background-color: rgba(20, 20, 20, 0.9);
+                z-index: 2;
             }
         </style>
 
@@ -119,8 +133,22 @@
                 <div>
                     <p style="font-weight: bold;">Starfield</p>
                     <div id="starfield-wrapper">
-                        <div id="loading" class="full-size"></div>
-                        <div id="starfield" class="full-size"></div>
+                        <div id="prompt" class="full-size overlay">
+                            <p>Draw line to this star or start anew?</p>
+                            <input id="yes-button" type="button" value="Connect" />
+                            <input id="no-button" type="button" value="Start anew" />
+                        </div>
+                        <div id="transcription" class="full-size overlay">
+                            <form action="#" accept-charset="utf-8">
+                                <input id="audio-button" type="button" value="Play audio" />
+                                <label for="transcription-field">Transcription:</label>
+                                <input id="transcription-field" class="block" type="text" />
+                                <input id="cancel-button" type="button" value="Cancel" />
+                                <input type="submit" value="OK" />
+                            </form>
+                        </div>
+                        <div id="loading" class="full-size overlay"></div>
+                        <div id="starfield" class="full-size overlay"></div>
                     </div>
                 </div>
             </section>

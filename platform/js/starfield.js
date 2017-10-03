@@ -26,6 +26,9 @@ function Starfield(starfieldContainer, playerContainer) {
  * -------------------------------------------------------------------------
  */
 Starfield.prototype.loadingFlag = true;
+Starfield.prototype.blockStagedLoading = false;
+Starfield.prototype.stagedStarId = 0;
+Starfield.prototype.stagedConnection = true;
 
 Starfield.prototype.starImages = [
     'platform/img/star-small.png',
@@ -39,6 +42,7 @@ Starfield.prototype.paper = undefined;
 // Raphael sets
 Starfield.prototype.starSet = undefined;
 Starfield.prototype.pathSet = undefined;
+Starfield.prototype.mainPath = undefined;
 
 
 /**
@@ -77,7 +81,7 @@ Starfield.prototype.loadPlayerList = function() {
             .append(i.toString(10) + '. ' + data.players[i].username)
             .click((function(index) {
                 return function() {
-                    alert('open profile of player with id: ' + data.players[index].userId);
+                    alert('Load profile user: ' + index);
                 }
             })(i))
             .hover((function(index) {
@@ -106,8 +110,11 @@ Starfield.prototype.loadUserStarsStaged = function(userId) {
     
     if (typeof userId != 'number')
         return;
-    
+        
     var instance = this;
+
+    if (instance.blockStagedLoading)
+        return;
     
     instance.stagedUser = userId;
     
@@ -205,6 +212,22 @@ Starfield.prototype.loadUserStars = function(userId, callback) {
 
         }
 
+        // This user?
+        if (userId == 0) {
+            
+            if (typeof instance.mainPath != 'undefined')
+                instance.mainPath.remove();
+            
+            // Draw main path onto canvas
+            instance.mainPath = instance.paper.path(pathString);
+            instance.mainPath.attr({
+                'stroke': '#D8F1FF',
+                'stroke-width': 3,
+                'opacity': 0.2
+            });
+            
+        }
+            
         // Draw path onto canvas
         var path = instance.paper.path(pathString);
         path.attr({
@@ -287,6 +310,10 @@ Starfield.prototype.resetStarfield = function(callback) {
             newStar.data('i', i + 1).click(function() {
 
                 // Stage star id for transcription
+                instance.$prompt.fadeIn(200);
+                instance.blockStagedLoading = true;
+                instance.stagedStarId = this.data('i');
+                /*
                 alert('Load transcription... | Star id: ' + this.data('i').toString());
                 $.post('starfield', { task: 'transcribe', star: this.data('i') }, function(data) {
 
@@ -299,6 +326,7 @@ Starfield.prototype.resetStarfield = function(callback) {
                     window.location.replace('transcription');
 
                 }, 'json');
+                */
 
             });
 
@@ -342,6 +370,98 @@ Starfield.prototype.percentToPixel = function(x, y) {
 
 /**
  * @chapter
+ * PRIVATE FUNCTIONS
+ * -------------------------------------------------------------------------
+ */
+ 
+/**
+ * Click handler for confirm prompt -> 'connect star'.
+ * This function must be bound to an onClick callback.
+ * @private
+ */
+Starfield.prototype.connectHandler = function() {
+    
+    var instance = this;
+    
+    instance.stagedConnection = true;
+    instance.$prompt.fadeOut(200);
+    instance.$transcription.fadeIn(200);
+    
+};
+
+/**
+ * Click handler for confirm prompt -> 'connect star'.
+ * This function must be bound to an onClick callback.
+ * @private
+ */
+Starfield.prototype.disconnectHandler = function() {
+    
+    var instance = this;
+    
+    instance.stagedConnection = false;
+    instance.$prompt.fadeOut(200);
+    instance.$transcription.fadeIn(200);
+    
+};
+
+/**
+ * Click handler for canceling transcription.
+ * This function must be bound to an onClick callback.
+ * @private
+ */
+Starfield.prototype.cancelTranscription = function() {
+    
+    var instance = this;
+    
+    instance.$transcription.fadeOut(200);
+    
+};
+
+/**
+ * Form submit handler for creating transcription.
+ * This function must be bound to an onSubmit callback.
+ * @private
+ */
+Starfield.prototype.createTranscription = function() {
+    
+    var instance = this;
+    
+    var value = instance.$transcription.find('#transcription-field').val();
+    
+    // Made transcription?
+    if (value.length == 0)
+        return;
+    
+    instance.$transcription.fadeOut(200);
+    instance.$loading.fadeIn(200);
+    
+    // Ajax request -> try to create transcription
+    $.post('transcription', {
+        transcription: value,
+        starId: instance.stagedStarId,
+        connect: instance.stagedConnection ? 1 : 0
+    }, function(data) {
+        
+        if (data.error != 'none') {
+            console.log('[SaveYourLanguage] Error while saving transcription: ' + data.error);
+            instance.$transcription.fadeIn(200);
+            return;
+        }
+        
+    }, 'json')
+    .always(function() {
+        
+        instance.blockStagedLoading = false;
+        instance.$loading.fadeOut(200);
+        instance.loadUserStarsStaged(0);
+        
+    });
+    
+};
+
+
+/**
+ * @chapter
  * INITIALIZATION
  * -------------------------------------------------------------------------
  */
@@ -373,14 +493,7 @@ Starfield.prototype.init = function(starfieldContainer, playerContainer) {
     // Save player list selector
     instance.$players = $('#' + playerContainer);
 
-    // View selectors
-    instance.$dialog = $('<div/>', {
-        'class': 'full-size',
-        'style': 'display: none; ' +
-                 'background-color: rgba(20, 20, 20, 0.9);' +
-                 'z-index: 1000;'
-    }).appendTo($('#' + starfieldContainer));
-
+    // Initialize size
     instance.initSize = {};
     instance.initSize.width = 1200;//$('#' + starfieldContainer + ' #starfield').width();
     instance.initSize.height = 675;//$('#' + starfieldContainer + ' #starfield').height();
@@ -397,6 +510,21 @@ Starfield.prototype.init = function(starfieldContainer, playerContainer) {
     $.proxy(instance.resetStarfield, instance);
     $.proxy(instance.pixelToPrecent, instance);
 
+    // Button click handlers for prompt / confirm dialog
+    // And transcription
+    instance.$prompt.find('#yes-button').click(
+        $.proxy(instance.connectHandler, instance)
+    );
+    instance.$prompt.find('#no-button').click(
+        $.proxy(instance.disconnectHandler, instance)
+    );
+    instance.$transcription.find('#cancel-button').click(
+        $.proxy(instance.cancelTranscription, instance)
+    );
+    instance.$transcription.find('form').submit(
+        $.proxy(instance.createTranscription, instance)
+    );
+    
     // Load starfield
     instance.resetStarfield(function() {
 
