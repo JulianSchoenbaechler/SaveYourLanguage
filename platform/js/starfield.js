@@ -30,6 +30,7 @@ Starfield.prototype.stagedStarId = 0;
 Starfield.prototype.stagedConnection = true;
 
 Starfield.prototype.starImages = [
+    'platform/img/star-current.png',
     'platform/img/star-small.png',
     'platform/img/star-middle.png',
     'platform/img/star-big.png'
@@ -49,7 +50,7 @@ Starfield.prototype.mainPath = undefined;
  * CONSTANTS
  * -------------------------------------------------------------------------
  */
-Starfield.STAR_SIZE = 16;
+Starfield.STAR_SIZE = 28;
 
 
 /**
@@ -176,6 +177,11 @@ Starfield.prototype.loadUserStars = function(userId, callback) {
         } else {
             instance.pathSet = instance.paper.set();
         }
+        
+        // Remove current star
+        if (typeof instance.currentStar != 'undefined') {
+            instance.currentStar.remove();
+        }
 
         // SVG path string
         var pathString = '';
@@ -191,6 +197,17 @@ Starfield.prototype.loadUserStars = function(userId, callback) {
                 pathString += 'M' + tempCoordinates.x.toString() + ',' + tempCoordinates.y.toString();
             else
                 pathString += 'L' + tempCoordinates.x.toString() + ',' + tempCoordinates.y.toString();
+            
+            // Use another image for last connected star
+            if (((i + 1) == data.path.length) && (userId == 0)) {
+                console.log('last');
+                instance.currentStar = instance.paper.image(instance.starImages[0],
+                                                            tempCoordinates.x - (Starfield.STAR_SIZE / 2),
+                                                            tempCoordinates.y - (Starfield.STAR_SIZE / 2),
+                                                            Starfield.STAR_SIZE,
+                                                            Starfield.STAR_SIZE);
+                
+            }
 
         }
 
@@ -270,14 +287,11 @@ Starfield.prototype.resetStarfield = function(callback) {
 
             tempCoordinates = instance.percentToPixel(data.stars[i].x, data.stars[i].y);
 
-            if (data.stars[i].level >= 5)
-                level = 4;
+            if (data.stars[i].level > 3)
+                level = 3;
 
-            else if(data.stars[i].level > 0)
-                level = data.stars[i].level - 1;
-            
             else
-                level = 0;
+                level = data.stars[i].level == 0 ? 1 : data.stars[i].level;
                 
 
             // Draw new star
@@ -432,9 +446,13 @@ Starfield.prototype.createTranscription = function() {
     }, 'json')
     .always(function() {
         
+        instance.$transcription.find('#transcription-field').val('');
         instance.blockStagedLoading = false;
         instance.$loading.fadeOut(200);
-        instance.loadUserStarsStaged(0);
+        
+        instance.resetStarfield(function() {
+            instance.loadUserStarsStaged(0);
+        });
         
     });
     
