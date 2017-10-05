@@ -158,7 +158,8 @@ class Starfield
             'snippetId' => $snippetId,
             'sequence' => $sequenceNo,
             'connected' => $connected ? 1 : 0,
-            'active' => 1
+            'active' => 1,
+            'timestamp' => time()
         ));
 
         // Update star level

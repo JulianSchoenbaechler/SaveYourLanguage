@@ -25,7 +25,6 @@ function Starfield(starfieldContainer, playerContainer) {
  * PROPERTIES
  * -------------------------------------------------------------------------
  */
-Starfield.prototype.loadingFlag = true;
 Starfield.prototype.blockStagedLoading = false;
 Starfield.prototype.stagedStarId = 0;
 Starfield.prototype.stagedConnection = true;
@@ -73,12 +72,12 @@ Starfield.prototype.loadPlayerList = function() {
             return;
         }
         
-        for (var i = 0; i < data.players.length; i++) {
+        for (var i = 0; i < data.bestPlayers.length; i++) {
             
             $('<div/>', {
                 'class': 'player-entry'
             })
-            .append(i.toString(10) + '. ' + data.players[i].username)
+            .append(i.toString(10) + '. ' + data.bestPlayers[i].username)
             .click((function(index) {
                 return function() {
                     alert('Load profile user: ' + index);
@@ -86,7 +85,7 @@ Starfield.prototype.loadPlayerList = function() {
             })(i))
             .hover((function(index) {
                 return function() {
-                    instance.loadUserStarsStaged(data.players[index].userId);
+                    instance.loadUserStarsStaged(data.bestPlayers[index].userId);
                 }
             })(i), (function(index) {
                 return function() {
@@ -121,47 +120,30 @@ Starfield.prototype.loadUserStarsStaged = function(userId) {
     if (typeof instance.starsLoaded == 'undefined')
         instance.starsLoaded = true;
     
-    if (typeof instance.starsStaged == 'undefined')
-        instance.starsStaged = false;
-    
-    // No user staged yet?
-    if (!instance.starsStaged) {
+    // Load after a small delay
+    setTimeout(function() {
         
-        instance.starsStaged = true;
-        
-        setTimeout(function() {
+        // Not currently loading...
+        if (instance.starsLoaded) {
             
-            // Not currently loading...
-            if (instance.starsLoaded) {
-                
-                instance.starsLoaded = false;
-                
-                // Show loading container
-                if (instance.loadingFlag)
-                    instance.$loading.fadeIn(200);
-                
-                // Load user stars
-                instance.loadUserStars(instance.stagedUser, function() {
-                    
-                    // Hide loading container
-                    if (instance.loadingFlag)
-                        instance.$loading.fadeOut(200);
-                    
-                    instance.starsLoaded = true;
-                    instance.starsStaged = false;
-                    
-                });
-                
-            } else {
-                
-                instance.starsStaged = false;
-                instance.loadUserStarsStaged(instance.stagedUser);
-                
-            }
+            instance.starsLoaded = false;
             
-        }, 100);
+            // Show loading container
+            instance.$loading.fadeIn(200);
+            
+            // Load user stars
+            instance.loadUserStars(instance.stagedUser, function() {
+                
+                // Hide loading container
+                instance.$loading.fadeOut(200);
+                
+                instance.starsLoaded = true;
+                
+            });
+            
+        }
         
-    }
+    }, 100);
     
 }
 
@@ -255,8 +237,7 @@ Starfield.prototype.resetStarfield = function(callback) {
     var instance = this;
 
     // Enable loading screen
-    if (instance.loadingFlag)
-        instance.$loading.fadeIn(200);
+    instance.$loading.fadeIn(200);
 
     // Remove all elements from the sets and clear those
     if (typeof instance.pathSet != 'undefined') {
@@ -535,8 +516,7 @@ Starfield.prototype.init = function(starfieldContainer, playerContainer) {
             instance.loadPlayerList();
             
             // Hide loading container
-            if (instance.loadingFlag)
-                instance.$loading.fadeOut(200);
+            instance.$loading.fadeOut(200);
 
         });
 

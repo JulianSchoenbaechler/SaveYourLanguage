@@ -111,10 +111,36 @@ if ($userId = Login::isUserLoggedIn()) {
                         INNER JOIN `users` AS `ut`
                         ON `st`.`userId` = `ut`.`id`
                     GROUP BY `st`.`userId`
-                    ORDER BY COUNT(`st`.`userId`) DESC";
+                    ORDER BY COUNT(`st`.`userId`) DESC
+                    LIMIT 3";
             
-            // Load stars
-            $playerList = $dc->executeCustomQuery($sql, array());
+            // Load users
+            $bestPlayers = $dc->executeCustomQuery($sql, array());
+            
+            $sql = "SELECT `st`.`userId`, `ut`.`username`
+                    FROM `userStars` AS `st`
+                        INNER JOIN `users` AS `ut`
+                        ON `st`.`userId` = `ut`.`id`";
+            
+            // Prepare parameters for next query
+            $params = array();
+            
+            // Get all already gathered users
+            for ($i = 0; $i < count($bestPlayers); $i++) {
+                
+                if ($i == 0)
+                    $sql .= " WHERE `st`.`userId`!=?";
+                else
+                    $sql .= " AND `st`.`userId`!=?";
+                
+                $params[] = intval($bestPlayers[$i]['userId']);
+                
+            }
+            
+            $sql .= " ORDER BY MAX(`st`.`timestamp`) DESC";
+            
+            // Get currently active players
+            $playerList = array_merge($playerList, $dc->executeCustomQuery($sql, $params));
             
             // Load players that have no transcriptions yet
             $playerList = array_merge($playerList, $dc->executeCustomQuery(
@@ -125,8 +151,10 @@ if ($userId = Login::isUserLoggedIn()) {
                 array()
             ));
             
+            $userPosition = 0;
+            
             // Replace associative array key to something more readable
-            foreach ($playerList as &$player) {
+            foreach ($playerList as $key => &$player) {
                 
                 if (isset($player['id'])) {
                     
@@ -135,10 +163,20 @@ if ($userId = Login::isUserLoggedIn()) {
                     
                 }
                 
+                if (intval($player['userId']) == $userId) {
+                    
+                    $userPosition = $key;
+                    
+                }
+                
             }
             
             // Response
-            echo json_encode(array('players' => $playerList));
+            echo json_encode(array(
+                'bestPlayers' => $bestPlayers,
+                'activePlayers' => $playerList,
+                'userPosition' => $userPosition
+            ));
             
             // Close db
             DatabaseController::disconnect(Login::$dbConnection);
