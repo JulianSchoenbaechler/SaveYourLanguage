@@ -140,7 +140,7 @@ if ($userId = Login::isUserLoggedIn()) {
             $sql .= " ORDER BY MAX(`st`.`timestamp`) DESC";
             
             // Get currently active players
-            $playerList = array_merge($playerList, $dc->executeCustomQuery($sql, $params));
+            $playerList = $dc->executeCustomQuery($sql, $params);
             
             // Load players that have no transcriptions yet
             $playerList = array_merge($playerList, $dc->executeCustomQuery(

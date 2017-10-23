@@ -74,7 +74,7 @@ Starfield.prototype.loadPlayerList = function() {
         }
         
         for (var i = 0; i < data.bestPlayers.length; i++) {
-            
+            /*
             $('<div/>', {
                 'class': 'player-entry'
             })
@@ -94,7 +94,15 @@ Starfield.prototype.loadPlayerList = function() {
                 }
             })(i))
             .appendTo(instance.$players);
+            */
+            if (i <= 2)
+                $('#transcriber-b' + (i + 1).toString()).html('<a href="profile?id=' + data.bestPlayers[i].userId + '">' + data.bestPlayers[i].username + "</a>");
+        }
+        
+        for (var i = 0; i < data.activePlayers.length; i++) {
             
+            if (i <= 2)
+                $('#transcriber-l' + (i + 1).toString()).html('<a href="profile?id=' + data.bestPlayers[i].userId + '">' + data.bestPlayers[i].username + "</a>");
         }
 
     }, 'json');
@@ -200,7 +208,7 @@ Starfield.prototype.loadUserStars = function(userId, callback) {
             
             // Use another image for last connected star
             if (((i + 1) == data.path.length) && (userId == 0)) {
-                console.log('last');
+                
                 instance.currentStar = instance.paper.image(instance.starImages[0],
                                                             tempCoordinates.x - (Starfield.STAR_SIZE / 2),
                                                             tempCoordinates.y - (Starfield.STAR_SIZE / 2),

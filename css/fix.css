@@ -1,0 +1,99 @@
+/*
+ * Fixing Muse template for compatibility with
+ * SaveYourLanguage.com platform
+ */
+
+body {
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+button {
+    cursor: pointer;
+    background-color: transparent;
+}
+input.fix,
+textarea.fix {
+    width: 260px !important;
+    padding-left: 20px;
+    font-size: 20px;
+    font-family: Georgia, Palatino, Palatino Linotype, Times, Times New Roman, serif;
+}
+a:link,
+a:visited {
+    color: inherit;
+}
+#prompt,
+#transcription {
+    display: none;
+    text-align: center;
+    font-size: 20px;
+    font-family: Georgia, Palatino, Palatino Linotype, Times, Times New Roman, serif;
+}
+#prompt button,
+#transcription button {
+    color: white;
+    padding: 2px 10px;
+    margin: 10px 20px;
+    font-size: 18px;
+    font-family: Georgia, Palatino, Palatino Linotype, Times, Times New Roman, serif;
+    font-weight: bold;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #FFFFFF;
+    border-radius: 20px;
+    background-color: #F7931E;
+}
+#prompt p,
+#transcription p {
+    margin: 20px 0 10px;
+    color: white;
+    font-size: 20px;
+    font-family: Georgia, Palatino, Palatino Linotype, Times, Times New Roman, serif;
+    font-weight: bold;
+}
+#prompt p:first-child,
+#transcription form:first-child {
+    margin-top: 5em;
+}
+#prompt input,
+#transcription input {
+    height: 26px;
+    font-size: 18px;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #FFFFFF;
+    background-color: #70CCDB;
+    border-radius: 26px 0px 0px 26px;
+}
+.hidden {
+    display: none;
+}
+.block-middle {
+    display: block;
+    margin: 2em auto;
+}
+.full-size {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+.starfield-overlay {
+    color: white;
+    background-color: rgba(20, 20, 20, 0.9);
+}
+.red {
+    color: #A00000;
+}
+.green {
+    color: #148900;
+}
+.blue {
+    color: #00459B;
+}
+.orange {
+    color: #E08200;
+}

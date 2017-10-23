@@ -1,0 +1,162 @@
+<manifest alg="2" build="2017.1.0.379" opt="false" iceEnabled="true" iceMarkupVersion="2" iceEnabledOptions="link,responsive,cachebuster,textStyling" exportTarget="other" domain="https://saveyourlanguage.com" resolutions="1x" timestamp="1508765010046">
+  <folder name="fonts">
+    <file name="bau-regular.woff" crc="449356990"/>
+    <file name="bau-regular.eot" crc="298377241"/>
+    <file name="bau-regular.svg" crc="3933958932"/>
+    <file name="bau-regularitalic.woff" crc="395527815"/>
+    <file name="bau-regularitalic.eot" crc="394466998"/>
+    <file name="bau-regularitalic.svg" crc="351669132"/>
+  </folder>
+  <folder name="css">
+    <file name="site_global.css" crc="444006867"/>
+    <file name="master_b-master.css" crc="3831438524" ref="recover:profile:about:game:account"/>
+    <file name="master_a-master.css" crc="276340718" ref="register:index:verification"/>
+    <file name="recover.css" crc="13465353" ref="recover"/>
+    <file name="profile.css" crc="4096780131" ref="profile"/>
+    <file name="about.css" crc="4161174586" ref="about"/>
+    <file name="game.css" crc="314029584" ref="game"/>
+    <file name="register.css" crc="448322560" ref="register"/>
+    <file name="account.css" crc="3760651371" ref="account"/>
+    <file name="index.css" crc="3901271694" ref="index"/>
+    <file name="verification.css" crc="4046012889" ref="verification"/>
+  </folder>
+  <folder name="scripts">
+    <file name="jquery-1.8.3.min.js" crc="209076791" ref="index:game:profile:recover:register:about:account:verification"/>
+    <file name="museutils.js" crc="17924269" ref="index:game:profile:recover:register:about:account:verification"/>
+    <file name="whatinput.js" crc="86476730" ref="index:game:profile:recover:register:about:account:verification"/>
+    <file name="museconfig.js" crc="144853533" ref="index:game:profile:recover:register:about:account:verification"/>
+    <file name="jquery.watch.js" crc="4240030481" ref="index:game:profile:recover:register:about:account:verification"/>
+    <file name="require.js" crc="3861931657" ref="index:game:profile:recover:register:about:account:verification"/>
+  </folder>
+  <folder name="images">
+    <file name="star01.png" crc="473301864" seo="true" ref="game">
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="about" alt=""/>
+      <caption webpage="about" alt=""/>
+      <caption webpage="about" alt=""/>
+      <caption webpage="about" alt=""/>
+      <caption webpage="about" alt=""/>
+      <caption webpage="about" alt=""/>
+      <caption webpage="about" alt=""/>
+      <caption webpage="about" alt=""/>
+      <caption webpage="game" alt=""/>
+      <caption webpage="game" alt=""/>
+    </file>
+    <file name="komet.png" crc="317812984" seo="true" ref="register">
+      <caption webpage="register" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="profile" alt=""/>
+    </file>
+    <file name="arrow.png" crc="4124711542" seo="true" ref="profile">
+      <caption webpage="profile" alt=""/>
+      <caption webpage="profile" alt=""/>
+    </file>
+    <file name="rand_kurz.jpg" crc="4183520314" seo="true" ref="index:game:profile:recover:register:about:account:verification">
+      <caption webpage="register" alt=""/>
+      <caption webpage="register" alt=""/>
+      <caption webpage="account" alt=""/>
+      <caption webpage="account" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="about" alt=""/>
+      <caption webpage="about" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="recover" alt=""/>
+      <caption webpage="recover" alt=""/>
+      <caption webpage="verification" alt=""/>
+      <caption webpage="verification" alt=""/>
+      <caption webpage="game" alt=""/>
+      <caption webpage="game" alt=""/>
+    </file>
+    <file name="logo_sylremastered2.png" crc="394621702" seo="true" ref="index:game:profile:recover:register:about:account:verification">
+      <caption webpage="register" alt=""/>
+      <caption webpage="account" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="about" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="recover" alt=""/>
+      <caption webpage="verification" alt=""/>
+      <caption webpage="game" alt=""/>
+    </file>
+    <file name="sternmittel.png" crc="4098638059" seo="true" ref="index:profile:recover:register:about:account">
+      <caption webpage="index" alt=""/>
+      <caption webpage="index" alt=""/>
+      <caption webpage="register" alt=""/>
+      <caption webpage="register" alt=""/>
+      <caption webpage="about" alt=""/>
+      <caption webpage="account" alt=""/>
+      <caption webpage="account" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="profile" alt=""/>
+      <caption webpage="recover" alt=""/>
+    </file>
+    <file name="sterngross.png" crc="4180984743" seo="true" ref="index:recover:about">
+      <caption webpage="index" alt=""/>
+      <caption webpage="recover" alt=""/>
+      <caption webpage="about" alt=""/>
+    </file>
+    <file name="hintergrund_1.jpg" crc="422411673" seo="true" ref="game">
+      <caption webpage="game" alt=""/>
+    </file>
+    <file name="u1679-4.png" crc="3865934760" ref="game"/>
+    <file name="u1683-4.png" crc="440582166" ref="game"/>
+    <file name="u1637-4.png" crc="4126548529" ref="game"/>
+    <file name="u1709-4.png" crc="4170291188" ref="game"/>
+    <file name="u1721-4.png" crc="328429227" ref="game"/>
+    <file name="u1634-4.png" crc="4067890784" ref="game"/>
+    <file name="u1708-4.png" crc="156737825" ref="game"/>
+    <file name="u1720-4.png" crc="4195132511" ref="game"/>
+    <file name="u1752-4.png" crc="360146363" ref="game"/>
+    <file name="u1754-4.png" crc="65698883" ref="game"/>
+    <file name="u1756-4.png" crc="4067959112" ref="game"/>
+    <file name="u1731-4.png" crc="86499950" ref="game"/>
+    <file name="u1733-4.png" crc="156737825" ref="game"/>
+    <file name="u1735-4.png" crc="4198247541" ref="game"/>
+    <file name="u534-4.png" crc="290401936" ref="recover"/>
+    <file name="u825-4.png" crc="3794339548" ref="recover"/>
+    <file name="u831-4.png" crc="3864097282" ref="recover"/>
+    <file name="planet_2.png" crc="520489077" seo="true" ref="register">
+      <caption webpage="register" alt=""/>
+    </file>
+    <file name="university-of-zurich.png" crc="3937446404" seo="true" ref="about">
+      <caption webpage="about" alt=""/>
+    </file>
+    <file name="zhdk.png" crc="3782652013" seo="true" ref="about">
+      <caption webpage="about" alt=""/>
+    </file>
+    <file name="planet_3.png" crc="3890949140" seo="true" ref="about">
+      <caption webpage="about" alt=""/>
+    </file>
+    <file name="u569-13.png" crc="3764492539" ref="about"/>
+    <file name="u570-8.png" crc="3851052354" ref="about"/>
+    <file name="planet_1.png" crc="270056580" seo="true" ref="account">
+      <caption webpage="account" alt=""/>
+    </file>
+  </folder>
+  <file name="index.html" crc="68850873" seo="true" mt="1508758019478" redirect="true"/>
+  <file name="game.html" crc="297549064" seo="true" mt="1508327473846" redirect="true"/>
+  <file name="profile.html" crc="4257660228" seo="true" mt="1508758019210" redirect="true"/>
+  <file name="recover.html" crc="48976119" seo="true" mt="1508758019430" redirect="true"/>
+  <file name="register.html" crc="3902426590" seo="true" mt="1508758019109" redirect="true"/>
+  <file name="about.html" crc="231534642" seo="true" mt="1508758019442" redirect="true"/>
+  <file name="account.html" crc="388067459" seo="true" mt="1508758018913" redirect="true"/>
+  <file name="verification.html" crc="4092212397" mt="1508764949538" redirect="true"/>
+</manifest>
