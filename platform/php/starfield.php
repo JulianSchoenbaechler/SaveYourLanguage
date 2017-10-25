@@ -145,14 +145,17 @@ if ($userId = Login::isUserLoggedIn()) {
             // Get currently active players
             $playerList = $dc->executeCustomQuery($sql, $params);
             
-            // Load players that have no transcriptions yet
-            $playerList = array_merge($playerList, $dc->executeCustomQuery(
+            $inactivePlayers = $dc->executeCustomQuery(
                 "SELECT `id`, `username`
                 FROM `users`
                 WHERE `id` NOT IN
                     (SELECT `userId` FROM `userStars`)",
                 array()
-            ));
+            );
+            
+            // Load players that have no transcriptions yet
+            if ($inactivePlayers != null)
+                $playerList = array_merge($playerList, $inactivePlayers);
             
             $userPosition = 0;
             

@@ -74,6 +74,9 @@ Starfield.prototype.loadPlayerList = function() {
             return;
         }
         
+        if (!data.bestPlayers)
+            return;
+        
         for (var i = 0; i < data.bestPlayers.length; i++) {
             
             if (i <= 2) {
@@ -175,7 +178,7 @@ Starfield.prototype.loadUserStars = function(userId, callback) {
     var tempCoordinates;
 
     $.post('starfield', { task: 'user', user: userId }, function(data) {
-
+        
         if (typeof data.error != 'undefined') {
             // Error occured
             return;
@@ -468,6 +471,9 @@ Starfield.prototype.createTranscription = function() {
         }
         
     }, 'json')
+    .fail(function(response) {
+        alert('Error: ' + response.responseText);
+    })
     .always(function() {
         
         instance.$transcription.find('#transcription-field').val('');
