@@ -120,11 +120,14 @@ if ($userId = Login::isUserLoggedIn()) {
             $sql = "SELECT `st`.`userId`, `ut`.`username`
                     FROM `userStars` AS `st`
                         INNER JOIN `users` AS `ut`
-                        ON `st`.`userId` = `ut`.`id`";
+                        ON `st`.`userId` = `ut`.`id`
+                    WHERE `st`.`timestamp` IN (
+                        SELECT MAX(`timestamp`) FROM `userStars` WHERE `userId`=`st`.`userId`
+                    )";
             
             // Prepare parameters for next query
             $params = array();
-            
+            /*
             // Get all already gathered users
             for ($i = 0; $i < count($bestPlayers); $i++) {
                 
@@ -136,8 +139,8 @@ if ($userId = Login::isUserLoggedIn()) {
                 $params[] = intval($bestPlayers[$i]['userId']);
                 
             }
-            
-            $sql .= " ORDER BY MAX(`st`.`timestamp`) DESC";
+            */
+            $sql .= " ORDER BY `st`.`timestamp` DESC";
             
             // Get currently active players
             $playerList = $dc->executeCustomQuery($sql, $params);

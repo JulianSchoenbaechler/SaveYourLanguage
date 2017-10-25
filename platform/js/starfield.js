@@ -30,7 +30,7 @@ Starfield.prototype.stagedStarId = 0;
 Starfield.prototype.stagedConnection = true;
 
 Starfield.prototype.starImages = [
-    'platform/img/star-current.png',
+    'platform/img/star-current.gif',
     'platform/img/star-small.png',
     'platform/img/star-middle.png',
     'platform/img/star-big.png'
@@ -50,7 +50,8 @@ Starfield.prototype.mainPath = undefined;
  * CONSTANTS
  * -------------------------------------------------------------------------
  */
-Starfield.STAR_SIZE = 28;
+Starfield.STAR_SIZE = 64;
+Starfield.BOUNDING_SIZE = 32;
 
 
 /**
@@ -74,35 +75,37 @@ Starfield.prototype.loadPlayerList = function() {
         }
         
         for (var i = 0; i < data.bestPlayers.length; i++) {
-            /*
-            $('<div/>', {
-                'class': 'player-entry'
-            })
-            .append(i.toString(10) + '. ' + data.bestPlayers[i].username)
-            .click((function(index) {
-                return function() {
-                    alert('Load profile user: ' + index);
-                }
-            })(i))
-            .hover((function(index) {
-                return function() {
-                    instance.loadUserStarsStaged(data.bestPlayers[index].userId);
-                }
-            })(i), (function(index) {
-                return function() {
+            
+            if (i <= 2) {
+                $('#transcriber-b' + (i + 1).toString())
+                .html(i.toString() + '.&nbsp;&nbsp;&nbsp;&nbsp;<a href="profile?id=' + data.bestPlayers[i].userId + '">' + data.bestPlayers[i].username + "</a>");
+                
+                $('#transcriber-b' + (i + 1).toString())
+                .hover((function(index) {
+                    return function() {
+                        instance.loadUserStarsStaged(data.bestPlayers[index].userId);
+                    }
+                })(i), function() {
                     instance.loadUserStarsStaged(0);
-                }
-            })(i))
-            .appendTo(instance.$players);
-            */
-            if (i <= 2)
-                $('#transcriber-b' + (i + 1).toString()).html('<a href="profile?id=' + data.bestPlayers[i].userId + '">' + data.bestPlayers[i].username + "</a>");
+                });
+            }
         }
         
         for (var i = 0; i < data.activePlayers.length; i++) {
             
-            if (i <= 2)
-                $('#transcriber-l' + (i + 1).toString()).html('<a href="profile?id=' + data.bestPlayers[i].userId + '">' + data.bestPlayers[i].username + "</a>");
+            if (i <= 2) {
+                $('#transcriber-l' + (i + 1).toString())
+                .html(i.toString() + '.&nbsp;&nbsp;&nbsp;&nbsp;<a href="profile?id=' + data.activePlayers[i].userId + '">' + data.activePlayers[i].username + "</a>");
+                
+                $('#transcriber-l' + (i + 1).toString())
+                .hover((function(index) {
+                    return function() {
+                        instance.loadUserStarsStaged(data.activePlayers[index].userId);
+                    }
+                })(i), function() {
+                    instance.loadUserStarsStaged(0);
+                });
+            }
         }
 
     }, 'json');
@@ -230,7 +233,7 @@ Starfield.prototype.loadUserStars = function(userId, callback) {
             instance.mainPath.attr({
                 'stroke': '#D8F1FF',
                 'stroke-width': 3,
-                'opacity': 0.2
+                'opacity': 0.1
             });
             
         }
@@ -308,9 +311,21 @@ Starfield.prototype.resetStarfield = function(callback) {
                                                tempCoordinates.y - (Starfield.STAR_SIZE / 2),
                                                Starfield.STAR_SIZE,
                                                Starfield.STAR_SIZE);
+            
+            // Star bounding box
+            var newBounding = instance.paper.rect(tempCoordinates.x - (Starfield.BOUNDING_SIZE / 2),
+                                                  tempCoordinates.y - (Starfield.BOUNDING_SIZE / 2),
+                                                  Starfield.BOUNDING_SIZE,
+                                                  Starfield.BOUNDING_SIZE);
+            
+            newBounding.attr({
+                'fill': 'white',
+                'opacity': 0,
+                'stroke-width': 0
+            });
 
             // Click event handler
-            newStar.data('i', i + 1).click(function() {
+            newBounding.data('i', i + 1).click(function() {
 
                 // Stage star id for transcription
                 instance.$prompt.fadeIn(200);
@@ -334,7 +349,7 @@ Starfield.prototype.resetStarfield = function(callback) {
             });
 
             // Hover event handler(s)
-            newStar.hover(function() {
+            newBounding.hover(function() {
                 this.attr({ cursor: 'pointer' });
             }, function() {
                 this.attr({ cursor: 'default' });
@@ -342,6 +357,7 @@ Starfield.prototype.resetStarfield = function(callback) {
 
             // Add new star to set
             instance.starSet.push(newStar);
+            instance.starSet.push(newBounding);
 
         }
 
