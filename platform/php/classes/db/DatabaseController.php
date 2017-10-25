@@ -632,13 +632,15 @@ class DatabaseController
         $sql = $sql1.$sql2." LIMIT ".(string)$max;
 
         // Add types parameter
-        array_unshift($param, $types);
+        if (count($param) > 0)
+            array_unshift($param, $types); 
 
         // Prepare statement
         if ($stmt = $this->link->prepare($sql)) {
 
             // Bind parameters through array
-            call_user_func_array(array($stmt, 'bind_param'), $param);
+            if (count($param) > 0)
+                call_user_func_array(array($stmt, 'bind_param'), $param);
 
             // Execute
             if ($stmt->execute()  === false)
@@ -861,13 +863,15 @@ class DatabaseController
         }
 
         // Add types parameter
-        array_unshift($param, $types);
+        if (count($param) > 0)
+            array_unshift($param, $types);
 
         // Prepare statement
         if ($stmt = $this->link->prepare($query)) {
 
             // Bind parameters through array
-            call_user_func_array(array($stmt, 'bind_param'), $param);
+            if (count($param) > 0)
+                call_user_func_array(array($stmt, 'bind_param'), $param);
 
             // Execute and close query
             if ($stmt->execute()  === false)

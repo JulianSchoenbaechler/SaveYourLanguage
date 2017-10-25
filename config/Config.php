@@ -36,4 +36,5 @@ class Config
     // Game specific
     const MAX_TRANSCRIPTIONS        = 10;
     const SNIPPET_VALID_COUNT       = 5;
+    const MAX_USER_SELECT_STAR      = 2;
 }

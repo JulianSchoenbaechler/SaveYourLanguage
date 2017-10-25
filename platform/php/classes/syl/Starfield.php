@@ -13,8 +13,10 @@ namespace SaveYourLanguage\Playfield;
 
 // Include db controller
 require_once dirname(__FILE__).'/../db/DatabaseController.php';
+require_once dirname(__FILE__).'/../Config.php';
 
 use SaveYourLanguage\Database\DatabaseController;
+use SaveYourLanguage\Config;
 
 
 class Starfield
@@ -103,7 +105,7 @@ class Starfield
     }
 
     // Add a new star to the users sequence
-    public static function addUserToStar($userId, $starId, $snippetId)
+    public static function addUserToStar($userId, $starId, $snippetId, $connected = true)
     {
         // Check arguments
         if (!is_int($userId)) {
@@ -130,26 +132,23 @@ class Starfield
         $sequenceNo = $userStars !== null ? count($userStars) : 0;
 
         // Already transcribed by player itself?
-        $oldStar = false;
+        $oldStar = 0;
 
         // Not the first star?
         if ($sequenceNo > 0) {
 
-            foreach ($userStars as $star) {
+            foreach ($userStars as $ustar) {
 
                 // Found transcribed
-                if ($star['starId'] == $starId) {
-
-                    $oldStar = true;
-                    break;
-
-                }
+                if ($ustar['starId'] == $starId)
+                    $oldStar++;
 
             }
 
         }
 
-        if ($oldStar == true)
+        // How many times can a star be transcribed?
+        if ($oldStar >= Config::MAX_USER_SELECT_STAR)
             return false;
 
         // Enqueue new star for user
@@ -158,7 +157,9 @@ class Starfield
             'starId' => $starId,
             'snippetId' => $snippetId,
             'sequence' => $sequenceNo,
-            'active' => 1
+            'connected' => $connected ? 1 : 0,
+            'active' => 1,
+            'timestamp' => time()
         ));
 
         // Update star level

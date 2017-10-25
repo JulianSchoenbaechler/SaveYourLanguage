@@ -26,6 +26,7 @@ $content = '';
 // Check if user logged in
 if ($userId = Login::isUserLoggedIn()) {
     
+    /*
     $dc = new DatabaseController(Login::$dbConnection);
     
     // Load response HTML content
@@ -36,6 +37,11 @@ if ($userId = Login::isUserLoggedIn()) {
     
     // Add username in content
     $content = str_replace('$-username-$', $row['username'], $content);
+    */
+    
+    // Redirecto to starfield page
+    header('Location: game', true, 302);
+    exit();
     
 } else {
     

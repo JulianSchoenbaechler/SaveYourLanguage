@@ -82,7 +82,7 @@ if ($userId = Login::isUserLoggedIn()) {
                 for ($i = 0; $i < count($rows); $i++) {
 
                     $star = $dc->getRow('stars', array('id' => $rows[$i]['starId']));
-                    $stars[$i] = array('x' => $star['x'] / 10, 'y' => $star['y'] / 10);
+                    $stars[$i] = array('x' => $star['x'] / 10, 'y' => $star['y'] / 10, 'connected' => $rows[$i]['connected'] ? true : false);
 
                 }
 
@@ -96,6 +96,94 @@ if ($userId = Login::isUserLoggedIn()) {
 
             }
 
+            // Close db
+            DatabaseController::disconnect(Login::$dbConnection);
+            exit();
+
+            break;
+
+        // Load player list
+        case 'players':
+
+            // Query to gather players list
+            $sql = "SELECT `st`.`userId`, `ut`.`username`
+                    FROM `userStars` AS `st`
+                        INNER JOIN `users` AS `ut`
+                        ON `st`.`userId` = `ut`.`id`
+                    GROUP BY `st`.`userId`
+                    ORDER BY COUNT(`st`.`userId`) DESC
+                    LIMIT 3";
+            
+            // Load users
+            $bestPlayers = $dc->executeCustomQuery($sql, array());
+            
+            $sql = "SELECT `st`.`userId`, `ut`.`username`
+                    FROM `userStars` AS `st`
+                        INNER JOIN `users` AS `ut`
+                        ON `st`.`userId` = `ut`.`id`
+                    WHERE `st`.`timestamp` IN (
+                        SELECT MAX(`timestamp`) FROM `userStars` WHERE `userId`=`st`.`userId`
+                    )";
+            
+            // Prepare parameters for next query
+            $params = array();
+            /*
+            // Get all already gathered users
+            for ($i = 0; $i < count($bestPlayers); $i++) {
+                
+                if ($i == 0)
+                    $sql .= " WHERE `st`.`userId`!=?";
+                else
+                    $sql .= " AND `st`.`userId`!=?";
+                
+                $params[] = intval($bestPlayers[$i]['userId']);
+                
+            }
+            */
+            $sql .= " ORDER BY `st`.`timestamp` DESC";
+            
+            // Get currently active players
+            $playerList = $dc->executeCustomQuery($sql, $params);
+            
+            $inactivePlayers = $dc->executeCustomQuery(
+                "SELECT `id`, `username`
+                FROM `users`
+                WHERE `id` NOT IN
+                    (SELECT `userId` FROM `userStars`)",
+                array()
+            );
+            
+            // Load players that have no transcriptions yet
+            if ($inactivePlayers != null)
+                $playerList = array_merge($playerList, $inactivePlayers);
+            
+            $userPosition = 0;
+            
+            // Replace associative array key to something more readable
+            foreach ($playerList as $key => &$player) {
+                
+                if (isset($player['id'])) {
+                    
+                    $player['userId'] = $player['id'];
+                    unset($player['id']);
+                    
+                }
+                
+                if (intval($player['userId']) == $userId) {
+                    
+                    $userPosition = $key;
+                    
+                }
+                
+            }
+            
+            // Response
+            echo json_encode(array(
+                'bestPlayers' => $bestPlayers,
+                'activePlayers' => $playerList,
+                'userPosition' => $userPosition
+            ));
+            
             // Close db
             DatabaseController::disconnect(Login::$dbConnection);
             exit();

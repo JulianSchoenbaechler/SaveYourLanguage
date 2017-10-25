@@ -1,216 +1,228 @@
 <!DOCTYPE html>
+<html class="nojs html css_verticalspacer" lang="en-GB">
+ <head>
 
-<html>
-    <head>
-        <title>SaveYourLanguage.com</title>
-        
-        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        <meta name="author" content="University of the Arts Zurich" />
-        <meta name="description" content="A playful platform delivering valuable linguistic data from user created transcriptions of small sound-recordings" />
-        <meta name="robots" content="noindex, nofollow, noarchive" />
-        <meta name="googlebot" content="noarchive" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        
-        <style type="text/css">
-            .red {
-                color: #A00000;
-            }
-            .green {
-                color: #148900;
-            }
-            .blue {
-                color: #00459B;
-            }
-            .orange {
-                color: #E08200;
-            }
-            .block {
-                display: block;
-                margin: 2px 0 8px;
-            }
-            .background1 {
-                background-color: #DDDDDD;
-            }
-            .background2 {
-                background-color: #C1C1C1;
-            }
-            .background3 {
-                background-color: #D0E6EA;
-            }
-            .background4 {
-                background-color: #E6CEE8;
-            }
-            .background5 {
-                background-color: #CCE5CC;
-            }
-        </style>
-        
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-        <script type="text/javascript">
-            $(document).ready(function() {
-                
-                // Object representing data from db
-                var originalData = {
-                    emailCheckbox: $('#email-checkbox').is(':checked'),
-                    emailField: $('#email-field').val(),
-                    nameField: $('#name-field').val(),
-                    addressField: $('#address-field').html(),
-                    phoneField: $('#phone-field').val()
-                };
-                
-                // Form submit function
-                var submitSettings = function(e) {
-                    
-                    $('#response').removeClass('red green');
-                    
-                    var postData = { task: 'settings' };
-                    
-                    // Gather data
-                    postData.publicEmail = $('#email-checkbox').is(':checked') ? 1 : 0;
-                    
-                    if ($('#email-field').val().length > 0)
-                        postData.email = $('#email-field').val();
-                    
-                    if ($('#password-field').val().length > 0)
-                        postData.newPassword = $('#password-field').val();
-                    
-                    if ($('#confirmation-field').val().length > 0)
-                        postData.confirmPassword = $('#confirmation-field').val();
-                    
-                    // Personal data
-                    postData.name = $('#name-field').val();
-                    postData.address = $('#address-field').html();
-                    postData.phone = $('#phone-field').val();
-                    
-                    if ($('#old-password-field').val().length > 0)
-                        postData.password = $('#old-password-field').val();
-                    
-                    // Start ajax post request
-                    $.post('user-data', postData, function(response) {
-                        
-                        switch (response.error) {
-                            
-                            case 'login':
-                            case 'notask':
-                                window.location.replace('index');
-                                break;
-                            
-                            case 'password':
-                                $('#response').addClass('red').html('The entered password is not correct!');
-                                break;
-                            
-                            case 'email':
-                                $('#response').addClass('red').html('Invalid email address!');
-                                $('#email-field').val(originalData.emailField);
-                                break;
-                            
-                            case 'confirmation':
-                                $('#response').addClass('red').html('Re-entered password is not correct!');
-                                break;
-                            
-                            case 'sendVerification':
-                                $('#response').addClass('red').html('Could not send verification email!');
-                                $('#email-field').val(originalData.emailField);
-                                break;
-                            
-                            default:
-                                $('#response').addClass('green').html('Changes successfully saved!');
-                                
-                                // Update original data
-                                originalData.emailCheckbox = $('#email-checkbox').is(':checked');
-                                originalData.emailField = $('#email-field').val();
-                                originalData.nameField = $('#name-field').val();
-                                originalData.addressField = $('#address-field').html();
-                                originalData.phoneField = $('#phone-field').val();
-                                break;
-                            
-                        }
-                        
-                        // Clear password fields
-                        $('#old-password-field').val('');
-                        $('#password-field').val('');
-                        $('#confirmation-field').val('');
-                        
-                    }, 'json');
-                    
-                    e.preventDefault();
-                    
-                };
-                
-                $('#settings-form').submit(submitSettings);
-                
-            });
-        </script>
-    </head>
+  <meta http-equiv="Content-type" content="text/html;charset=UTF-8"/>
+  <meta name="generator" content="2017.1.0.379"/>
+  
+  <script type="text/javascript">
+   // Update the 'nojs'/'js' class on the html node
+document.documentElement.className = document.documentElement.className.replace(/\bnojs\b/g, 'js');
 
-    <body>
+// Check that all required assets are uploaded and up-to-date
+if(typeof Muse == "undefined") window.Muse = {}; window.Muse.assets = {"required":["museutils.js", "museconfig.js", "jquery.watch.js", "require.js", "account.css"], "outOfDate":[]};
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
         
-        <!-- wrapper -->
-        <div id="wrapper">
-            
-            <!-- header -->
-            <header id="index" class="background1">Account settings</header>
-            
-            <!-- login section -->
-            <section class="background1">
-                <p class="green">Welcome $-username-$</p>
-                <p><a href="game">Get started!</a></p>
-            </section>
-            
-            <!-- main section -->
-            <section class="background2">
-                <p>You are logged in</p>
-                <div>
-                    <p style="font-weight: bold;">Logout</p>
-                    <form action="login" method="post" accept-charset="utf-8">
-                        <input type="submit" value="Logout" />
-                    </form>
-                </div>
-                <br />
-                <p id="response"></p>
-                <div>
-                    <p style="font-weight: bold;">Profile settings:</p>
-                    <form id="settings-form" accept-charset="utf-8">
-                        <input id="email-checkbox" type="checkbox" $-publicEmail-$/>
-                        <label for="email-checkbox">Public e-mail address:</label><br />
-                        <label for="email-field">Change e-mail address:</label>
-                        <input id="email-field" class="block" type="email" value="$-email-$" />
-                        <label for="password-field">Change password:</label>
-                        <input id="password-field" class="block" type="password" />
-                        <label for="confirmation-field">Confirm password:</label>
-                        <input id="confirmation-field" class="block" type="password" />
-                        <label for="name-field">Real name:</label>
-                        <input id="name-field" class="block" type="text" value="$-name-$" />
-                        <label for="address-field">Address:</label>
-                        <textarea id="address-field" class="block" rows="4" cols="30">$-address-$</textarea>
-                        <label for="phone-field">Phone:</label>
-                        <input id="phone-field" class="block" type="text" pattern=".{3,}" value="$-phone-$" />
-                        <br /><br />
-                        <label for="old-password-field">Enter current password to make changes:</label>
-                        <input id="old-password-field" class="block" type="password" required="required" />
-                        <input type="submit" value="Save" />
-                    </form>
-                </div>
-            </section>
-            
-            <nav class="background3">
-                <p>Navigation</p>
-                <ul>
-                    <li><a href="game">Starfield</a></li>
-                    <li><a href="profile">Profile</a></li>
-                    <li><a href="account">Account</a></li>
-                    <li><a href="about">About</a></li>
-                    <li><a href="sitemap">Sitemap</a></li>
-                    <li><a href="legal">Legal Information</a></li>
-                </ul>
-            </nav>
-            
-        </div>
+        // Object representing data from db
+        var originalData = {
+            emailField: $('#u1953').val(),
+            nameField: $('#u1959').val(),
+            addressField: $('#u1997').html(),
+            phoneField: $('#u1999').val()
+        };
         
-        <!-- footer -->
-        <footer class="background4">
-            <p>This is our footer</p>
-        </footer>
+        // Form submit function
+        var submitSettings = function(e) {
+            
+            $('#response').removeClass('red green');
+            
+            var postData = { task: 'settings' };
+            
+            // Gather data
+            
+            if ($('#u1953').val().length > 0)
+                postData.email = $('#u1953').val();
+            
+            if ($('#u1955').val().length > 0)
+                postData.newPassword = $('#u1955').val();
+            
+            if ($('#u1957').val().length > 0)
+                postData.confirmPassword = $('#u1957').val();
+            
+            // Personal data
+            postData.name = $('#u1959').val();
+            postData.address = $('#u1997').html();
+            postData.phone = $('#u1999').val();
+            
+            // Start ajax post request
+            $.post('user-data', postData, function(response) {
+                
+                switch (response.error) {
+                    
+                    case 'login':
+                    case 'notask':
+                        window.location.replace('index');
+                        break;
+                    
+                    case 'password':
+                        $('#response').addClass('red').html('The entered password is not correct!');
+                        break;
+                    
+                    case 'email':
+                        $('#response').addClass('red').html('Invalid email address!');
+                        $('#u1953').val(originalData.emailField);
+                        break;
+                    
+                    case 'confirmation':
+                        $('#response').addClass('red').html('Re-entered password is not correct!');
+                        break;
+                    
+                    case 'sendVerification':
+                        $('#response').addClass('red').html('Could not send verification email!');
+                        $('#u1953').val(originalData.emailField);
+                        break;
+                    
+                    default:
+                        $('#response').addClass('green').html('Changes successfully saved!');
+                        
+                        // Update original data
+                        originalData.emailField = $('#u1953').val();
+                        originalData.nameField = $('#u1959').val();
+                        originalData.addressField = $('#u1997').html();
+                        originalData.phoneField = $('#u1999').val();
+                        break;
+                    
+                }
+                
+                // Clear password fields
+                $('#u1955').val('');
+                $('#u1957').val('');
+                
+            }, 'json');
+            
+            e.preventDefault();
+            
+        };
         
-    </body>
+        $('#settings-form').submit(submitSettings);
+        
+    });
+</script>
+  
+  <title>Account Page</title>
+  <!-- CSS -->
+  <link rel="stylesheet" type="text/css" href="css/site_global.css?crc=444006867"/>
+  <link rel="stylesheet" type="text/css" href="css/master_b-master.css?crc=234652161"/>
+  <link rel="stylesheet" type="text/css" href="css/account.css?crc=4091692122" id="pagesheet"/>
+  <link rel="stylesheet" type="text/css" href="css/fix.css"/>
+    <!--/*
+
+*/
+-->
+ </head>
+ <body>
+
+  <div class="clearfix" id="page"><!-- group -->
+   <div class="clip_frame grpelem" id="u2170" data-mu-ie-matrix="progid:DXImageTransform.Microsoft.Matrix(M11=0,M12=-1,M21=1,M22=0,SizingMethod='auto expand')" data-mu-ie-matrix-dx="857" data-mu-ie-matrix-dy="-857"><!-- image -->
+    <img class="block" id="u2170_img" src="images/rand_kurz.jpg?crc=4183520314" alt="" width="1781" height="67"/>
+   </div>
+   <div class="clearfix grpelem" id="ppu739"><!-- column -->
+   <form id="settings-form" accept-charset="utf-8">
+    <div class="clearfix colelem" id="pu739"><!-- group -->
+     <div class="clip_frame clearfix grpelem" id="u739"><!-- image -->
+      <img class="position_content" id="u739_img" src="images/logo_sylremastered2.png?crc=394621702" alt="" width="977" height="282"/>
+     </div>
+     <a class="nonblock nontext clearfix grpelem" id="u935-4" href="game"><!-- content --><p>STARFIELD</p></a>
+     <a class="nonblock nontext Button grpelem" id="buttonu1171" href="game"><!-- container box --></a>
+     <a class="nonblock nontext clearfix grpelem" id="u941-4" href="profile"><!-- content --><p>PROFILE</p></a>
+     <a class="nonblock nontext Button grpelem" id="buttonu1177" href="profile"><!-- container box --></a>
+     <a class="nonblock nontext clearfix grpelem" id="u944-4" href="about"><!-- content --><p>ABOUT</p></a>
+     <a class="nonblock nontext Button grpelem" id="buttonu1180" href="about"><!-- container box --></a>
+     <a class="nonblock nontext clearfix grpelem" id="u1515-4" href="login"><!-- content --><p>LOGOUT</p></a>
+     <a class="nonblock nontext Button grpelem" id="buttonu1516" href="login"><!-- container box --></a>
+    </div>
+    <div class="clearfix colelem" id="pu1953"><!-- group -->
+     <input class="rounded-corners grpelem fix" id="u1953" type="email" value="$-email-$"/>
+     <div class="clearfix grpelem" id="u1954-4"><!-- content -->
+      <p>E-Mail Address</p>
+     </div>
+    </div>
+    <div class="clearfix colelem" id="pu2540"><!-- group -->
+     <div class="clip_frame grpelem" id="u2540"><!-- image -->
+      <img class="block" id="u2540_img" src="images/sternmittel.png?crc=4098638059" alt="" width="57" height="57"/>
+     </div>
+     <input class="rounded-corners grpelem fix" id="u1955" type="password"/>
+     <div class="clearfix grpelem" id="u1956-4"><!-- content -->
+      <p>New Password</p>
+     </div>
+    </div>
+    <div class="clearfix colelem" id="pu1957"><!-- group -->
+     <input class="rounded-corners grpelem fix" id="u1957" type="password"/>
+     <div class="clearfix grpelem" id="u1958-4"><!-- content -->
+      <p>Retype Password</p>
+     </div>
+    </div>
+    <div class="clearfix colelem" id="pu1959"><!-- group -->
+     <input class="rounded-corners grpelem fix" id="u1959" type="text" value="$-name-$"/>
+     <div class="clearfix grpelem" id="u1960-4"><!-- content -->
+      <p>Real name</p>
+     </div>
+    </div>
+    <div class="clearfix colelem" id="pu1961"><!-- group -->
+     <div class="clearfix grpelem" id="u1962-4"><!-- content -->
+      <p>Address</p>
+     </div>
+    </div>
+    <div class="clearfix colelem" id="pu2547"><!-- group -->
+     <div class="clip_frame grpelem" id="u2547"><!-- image -->
+      <img class="block" id="u2547_img" src="images/sternmittel.png?crc=4098638059" alt="" width="91" height="91"/>
+     </div>
+     <div class="clearfix grpelem" id="pppu1965"><!-- column -->
+      <div class="clearfix colelem" id="ppu1965"><!-- group -->
+       <div class="clearfix grpelem" id="pu1965"><!-- column -->
+        <textarea class="rounded-corners grpelem fix" id="u1997" rows="4" cols="30">$-address-$</textarea>
+        <input class="rounded-corners colelem fix" id="u1999" type="text" pattern=".{3,}" value="$-phone-$"/>
+       </div>
+       <div class="clearfix grpelem" id="u2000-4"><!-- content -->
+        <p>Phone</p>
+       </div>
+       <div class="clip_frame grpelem" id="u2523"><!-- image -->
+        <img class="block" id="u2523_img" src="images/planet_1.png?crc=270056580" alt="" width="279" height="239"/>
+       </div>
+      </div>
+      <button class="rounded-corners clearfix colelem" id="u1963" type="submit"><!-- group -->
+       <div class="clearfix grpelem" id="u1964-4"><!-- content -->
+        <p>Save changes</p>
+       </div>
+     </button>
+     <div style="z-index: 53; width: 580px; padding-bottom: 6px; margin-left: 0px; margin-top: 320px; position: relative; text-align: center;">
+      <p id="response" style="line-height: 24px; font-size: 18px; font-family: '__Bau-Regular_5';"></p>
+     </div>
+     </div>
+    </div>
+   </form>
+   </div>
+   <div class="clip_frame grpelem" id="u2154" data-mu-ie-matrix="progid:DXImageTransform.Microsoft.Matrix(M11=0,M12=1,M21=-1,M22=0,SizingMethod='auto expand')" data-mu-ie-matrix-dx="858" data-mu-ie-matrix-dy="-858"><!-- image -->
+    <img class="block" id="u2154_img" src="images/rand_kurz.jpg?crc=4183520314" alt="" width="1780" height="65"/>
+   </div>
+   <div class="verticalspacer" data-offset-top="966" data-content-above-spacer="1781" data-content-below-spacer="27"></div>
+  </div>
+  <!-- Other scripts -->
+  <script type="text/javascript">
+   // Decide weather to suppress missing file error or not based on preference setting
+var suppressMissingFileError = false
+</script>
+  <script type="text/javascript">
+   window.Muse.assets.check=function(d){if(!window.Muse.assets.checked){window.Muse.assets.checked=!0;var b={},c=function(a,b){if(window.getComputedStyle){var c=window.getComputedStyle(a,null);return c&&c.getPropertyValue(b)||c&&c[b]||""}if(document.documentElement.currentStyle)return(c=a.currentStyle)&&c[b]||a.style&&a.style[b]||"";return""},a=function(a){if(a.match(/^rgb/))return a=a.replace(/\s+/g,"").match(/([\d\,]+)/gi)[0].split(","),(parseInt(a[0])<<16)+(parseInt(a[1])<<8)+parseInt(a[2]);if(a.match(/^\#/))return parseInt(a.substr(1),
+16);return 0},g=function(g){for(var f=document.getElementsByTagName("link"),h=0;h<f.length;h++)if("text/css"==f[h].type){var i=(f[h].href||"").match(/\/?css\/([\w\-]+\.css)\?crc=(\d+)/);if(!i||!i[1]||!i[2])break;b[i[1]]=i[2]}f=document.createElement("div");f.className="version";f.style.cssText="display:none; width:1px; height:1px;";document.getElementsByTagName("body")[0].appendChild(f);for(h=0;h<Muse.assets.required.length;){var i=Muse.assets.required[h],l=i.match(/([\w\-\.]+)\.(\w+)$/),k=l&&l[1]?
+l[1]:null,l=l&&l[2]?l[2]:null;switch(l.toLowerCase()){case "css":k=k.replace(/\W/gi,"_").replace(/^([^a-z])/gi,"_$1");f.className+=" "+k;k=a(c(f,"color"));l=a(c(f,"backgroundColor"));k!=0||l!=0?(Muse.assets.required.splice(h,1),"undefined"!=typeof b[i]&&(k!=b[i]>>>24||l!=(b[i]&16777215))&&Muse.assets.outOfDate.push(i)):h++;f.className="version";break;case "js":h++;break;default:throw Error("Unsupported file type: "+l);}}d?d().jquery!="1.8.3"&&Muse.assets.outOfDate.push("jquery-1.8.3.min.js"):Muse.assets.required.push("jquery-1.8.3.min.js");
+f.parentNode.removeChild(f);if(Muse.assets.outOfDate.length||Muse.assets.required.length)f="Some files on the server may be missing or incorrect. Clear browser cache and try again. If the problem persists please contact website author.",g&&Muse.assets.outOfDate.length&&(f+="\nOut of date: "+Muse.assets.outOfDate.join(",")),g&&Muse.assets.required.length&&(f+="\nMissing: "+Muse.assets.required.join(",")),suppressMissingFileError?(f+="\nUse SuppressMissingFileError key in AppPrefs.xml to show missing file error pop up.",console.log(f)):alert(f)};location&&location.search&&location.search.match&&location.search.match(/muse_debug/gi)?
+setTimeout(function(){g(!0)},5E3):g()}};
+var muse_init=function(){require.config({baseUrl:""});require(["jquery","museutils","whatinput","jquery.watch"],function(d){var $ = d;$(document).ready(function(){try{
+window.Muse.assets.check($);/* body */
+Muse.Utils.transformMarkupToFixBrowserProblemsPreInit();/* body */
+Muse.Utils.prepHyperlinks(true);/* body */
+Muse.Utils.makeButtonsVisibleAfterSettingMinWidth();/* body */
+Muse.Utils.fullPage('#page');/* 100% height page */
+Muse.Utils.showWidgetsWhenReady();/* body */
+Muse.Utils.transformMarkupToFixBrowserProblems();/* body */
+}catch(b){if(b&&"function"==typeof b.notify?b.notify():Muse.Assert.fail("Error calling selector function: "+b),false)throw b;}})})};
+
+</script>
+  <!-- RequireJS script -->
+  <script src="scripts/require.js?crc=3861931657" type="text/javascript" async data-main="scripts/museconfig.js?crc=144853533" onload="if (requirejs) requirejs.onError = function(requireType, requireModule) { if (requireType && requireType.toString && requireType.toString().indexOf && 0 <= requireType.toString().indexOf('#scripterror')) window.Muse.assets.check(); }" onerror="window.Muse.assets.check();"></script>
+   </body>
 </html>
