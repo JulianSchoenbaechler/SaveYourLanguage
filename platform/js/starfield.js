@@ -35,6 +35,7 @@ Starfield.prototype.starImages = [
     'platform/img/star-middle.png',
     'platform/img/star-big.png'
 ];
+Starfield.prototype.transparent = 'platform/img/transparent.png';
 
 // Raphael canvas
 Starfield.prototype.paper = undefined;
@@ -81,7 +82,7 @@ Starfield.prototype.loadPlayerList = function() {
             
             if (i <= 2) {
                 $('#transcriber-b' + (i + 1).toString())
-                .html(i.toString() + '.&nbsp;&nbsp;&nbsp;&nbsp;<a href="profile?id=' + data.bestPlayers[i].userId + '">' + data.bestPlayers[i].username + "</a>");
+                .html((i + 1).toString() + '.&nbsp;&nbsp;&nbsp;&nbsp;<a href="profile?id=' + data.bestPlayers[i].userId + '">' + data.bestPlayers[i].username + "</a>");
                 
                 $('#transcriber-b' + (i + 1).toString())
                 .hover((function(index) {
@@ -98,7 +99,7 @@ Starfield.prototype.loadPlayerList = function() {
             
             if (i <= 2) {
                 $('#transcriber-l' + (i + 1).toString())
-                .html(i.toString() + '.&nbsp;&nbsp;&nbsp;&nbsp;<a href="profile?id=' + data.activePlayers[i].userId + '">' + data.activePlayers[i].username + "</a>");
+                .html((i + 1).toString() + '.&nbsp;&nbsp;&nbsp;&nbsp;<a href="profile?id=' + data.activePlayers[i].userId + '">' + data.activePlayers[i].username + "</a>");
                 
                 $('#transcriber-l' + (i + 1).toString())
                 .hover((function(index) {
@@ -316,16 +317,13 @@ Starfield.prototype.resetStarfield = function(callback) {
                                                Starfield.STAR_SIZE);
             
             // Star bounding box
-            var newBounding = instance.paper.rect(tempCoordinates.x - (Starfield.BOUNDING_SIZE / 2),
+            var newBounding = instance.paper.image(instance.transparent,
+                                                  tempCoordinates.x - (Starfield.BOUNDING_SIZE / 2),
                                                   tempCoordinates.y - (Starfield.BOUNDING_SIZE / 2),
                                                   Starfield.BOUNDING_SIZE,
                                                   Starfield.BOUNDING_SIZE);
             
-            newBounding.attr({
-                'fill': 'white',
-                'opacity': 0,
-                'stroke-width': 0
-            });
+            newBounding.toFront();
 
             // Click event handler
             newBounding.data('i', i + 1).click(function() {
