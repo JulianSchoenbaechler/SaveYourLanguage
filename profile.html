@@ -12,6 +12,16 @@ document.documentElement.className = document.documentElement.className.replace(
 // Check that all required assets are uploaded and up-to-date
 if(typeof Muse == "undefined") window.Muse = {}; window.Muse.assets = {"required":["museutils.js", "museconfig.js", "jquery.watch.js", "require.js", "profile.css"], "outOfDate":[]};
 </script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="platform/js/raphael.min.js"></script>
+<script type="text/javascript" src="platform/js/profile.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        var constellationHandling = new Constellation('u1903', 'u1909', 'u1919', 'star-title');
+
+    });
+</script>
   
   <title>Profile &amp; Stats Page</title>
   <!-- CSS -->
@@ -57,7 +67,7 @@ if(typeof Muse == "undefined") window.Muse = {}; window.Muse.assets = {"required
      </button>
      <div class="clearfix grpelem" id="pu1926-4"><!-- column -->
       <div class="clearfix colelem" id="u1926-4"><!-- content -->
-       <p>Current</p>
+       <p id="star-title">Current</p>
       </div>
       <div class="colelem" id="u1903"><!-- simple frame --></div>
      </div>
@@ -73,8 +83,6 @@ if(typeof Muse == "undefined") window.Muse = {}; window.Muse.assets = {"required
     </div>
     <div class="grpelem" id="u842" data-mu-ie-matrix="progid:DXImageTransform.Microsoft.Matrix(M11=0,M12=-1,M21=1,M22=0,SizingMethod='auto expand')" data-mu-ie-matrix-dx="89" data-mu-ie-matrix-dy="-88"><!-- simple frame --></div>
     <div class="grpelem" id="u845" data-mu-ie-matrix="progid:DXImageTransform.Microsoft.Matrix(M11=0,M12=-1,M21=1,M22=0,SizingMethod='auto expand')" data-mu-ie-matrix-dx="52" data-mu-ie-matrix-dy="-51"><!-- simple frame --></div>
-    <div class="grpelem" id="u893"><!-- simple frame --></div>
-    <div class="grpelem" id="u899"><!-- simple frame --></div>
     <button class="clip_frame grpelem" id="u1919" data-mu-ie-matrix="progid:DXImageTransform.Microsoft.Matrix(M11=-1,M12=0,M21=0,M22=-1,SizingMethod='auto expand')" data-mu-ie-matrix-dx="0" data-mu-ie-matrix-dy="0"><!-- image -->
      <img class="block" id="u1919_img" src="images/arrow.png?crc=4124711542" alt="" width="52" height="50"/>
     </button>
